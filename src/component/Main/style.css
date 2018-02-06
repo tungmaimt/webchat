@@ -1,0 +1,7 @@
+.main {
+    width: 75%;
+    height: 500px;
+    background-color: #aaffff;
+    display: flex;
+    flex-direction: column;
+}
