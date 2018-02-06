@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "concurrently": "^3.5.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "dev": "concurrently --kill-others --names 'SERVER,CLIENT' 'npm run server' 'npm run client'",
+    "client": "react-scripts start",
+    "server": "node src/server/server",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
