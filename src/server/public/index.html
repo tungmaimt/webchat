@@ -81,6 +81,10 @@
         console.log('CONNECTED');
       });
 
+      socket.on('test', (data) => {
+        console.log(data.mes);
+      });
+
       socket.on('rand', function (data) {
         console.log('RANDOM STREAM: ' + data.rand);
       });

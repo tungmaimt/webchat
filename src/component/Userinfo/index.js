@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import './style.css';
-import ava from '../../static/image/default_ava.jpg';
+import ava from '../../static/images/default_ava.jpg';
 
 
 class Userinfo extends Component {
     constructor(props) {
         super(props);
-        state: {
-            status: [1, 2, 3];
-            statusDes: '';
+        this.state = {
+            status: [1, 2, 3],
+            statusDes: '',
         }
     }
 

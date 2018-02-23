@@ -3,7 +3,9 @@ import React, { Component } from 'react';
 import './App.css';
 import Asidebar from './Asidebar';
 import Main from './Main';
+import LoginModal from './LoginModal';
 import { fetchSomething, socket } from '../something';
+
 
 class App extends Component {
   render() {
@@ -11,16 +13,28 @@ class App extends Component {
       <div className="flex">
         <Asidebar />
         <Main />
+        <LoginModal />
       </div>
     );
   }
 
   componentDidMount() {
+    // let body = {
+    //   username: 'tungmaitest',
+    //   password: 'tungmaitest'
+    // }
 
-    fetchSomething('/user/tung', (data) => {
-      console.log(data);
-    });
+    // let option = {
+    //   method: 'POST',
+    //   body: JSON.stringify(body),
+    //   headers: new Headers({
+    //     'content-type': 'application/json'
+    //   })
+    // };
 
+    // fetchSomething('/api/user', option, (data) => {
+    //   console.log(data);
+    // });
   }
 }
 
