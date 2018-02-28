@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './style.css';
 import LoginForm from '../LoginForm';
 import SignUpForm from '../SignUpForm';
-import userStore from '../../stores/loginStore';
+import loginStore from '../../stores/loginStore';
 
 class LoginModal extends Component {
     constructor() {
@@ -16,8 +16,8 @@ class LoginModal extends Component {
     }
 
     checkLogin() {
-        if (window.localStorage.wcToken) return true;
-        else return false;
+        if (!window.localStorage.wcToken) return false;
+        else return true;
     }
 
     toggleModal() {
@@ -27,27 +27,27 @@ class LoginModal extends Component {
     }
 
     componentWillMount() {
-        userStore.addChangeLoginStateListener(() => {
+        loginStore.addChangeLoginStateListener(() => {
             this.setState({
-                isShow: !userStore.getLoginState()
+                isShow: !loginStore.getLoginState()
             });
         });
-        userStore.addChangeSignUpStateListener(() => {
+        loginStore.addChangeSignUpStateListener(() => {
             this.setState({
-                isSignUp: userStore.getSignUpState()
-            })
+                isSignUp: loginStore.getSignUpState()
+            });
         })
     }
 
     componentWillUnmount() {
-        userStore.removeChangeLoginStateListener(() => {
+        loginStore.removeChangeLoginStateListener(() => {
             this.setState({
-                isShow: !userStore.getLoginState()
+                isShow: !loginStore.getLoginState()
             })
         });
-        userStore.removeChangeSignUpStateListener(() => {
+        loginStore.removeChangeSignUpStateListener(() => {
             this.setState({
-                isSignUp: userStore.getSignUpState()
+                isSignUp: loginStore.getSignUpState()
             })
         })
     }

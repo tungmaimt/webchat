@@ -9,26 +9,12 @@ socket.on('error', function (err) {
 
 socket.on('connect', () => {
     console.log('connected');
-});
-
-socket.on('rand', (data) => {
-    console.log(data.rand);
+    socket.emit('mapping', { _id: window.localStorage._id });
 });
 
 socket.on('response', (data) => {
-    if (data.err) console.log(data.err);
-    console.log(data);
+    if (data.err) return console.log(data.err);
     handleResponse(data.response, data.result);
-});
-
-socket.on('test', (data) => {
-    console.log(data.mes);
-    console.log(socket.id);
-});
-
-const room = socket.subscribe('room');
-room.watch((data) => {
-    console.log(data);
 });
 
 export default socket;

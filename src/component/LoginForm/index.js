@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import './style.css';
 import loginAction from '../../actions/loginAction';
-import { registerHandleResponse } from '../../something';
-
-const localStorage = window.localStorage;
+import userAction from '../../actions/userAction';
+import { registerHandleResponse, removeHandleResponse, localStorage } from '../../something';
+import Modal from '../Modal';
 
 class LoginForm extends Component {
     constructor() {
@@ -32,7 +32,25 @@ class LoginForm extends Component {
             console.log(result);
             if (result.success) {
                 loginAction.changeLoginState(true);
-                localStorage.wcToken = result.token;
+                localStorage.save(result.token, result._id);
+                userAction.getInfo(localStorage.get_Id(), (err, response) => {
+                    if (err) {
+                        if (err.name === 'JsonWebTokenError') 
+                            console.log('JsonWebTokenError');
+                    }
+                })
+            } else {
+                this.notify('username or password are incorrect');
+            }
+        });
+    }
+
+    componentWillUnmount() {
+        removeHandleResponse('userLogin', (result) => {
+            console.log(result);
+            if (result.success) {
+                loginAction.changeLoginState(true);
+                localStorage.save(result.token, result._id);
             } else {
                 this.notify('username or password are incorrect');
             }
@@ -53,7 +71,10 @@ class LoginForm extends Component {
             username: this.state.username,
             password: this.state.password
         }
-        loginAction.login(payload);
+        loginAction.login(payload, (err, response) => {
+            if (err) return console.log(err);
+            console.log(response);
+        });
     }
 
     goSignUp(event) {
@@ -64,6 +85,7 @@ class LoginForm extends Component {
     render() {
         return (
             <div className="loginForm">
+            <Modal isOpen='true'>
                 <p>Login</p>
                 <input name='username' onChange={this.updateInput} value={this.state.username} type='text'></input>
                 <br/>
@@ -73,6 +95,16 @@ class LoginForm extends Component {
                 <button type='button' onClick={this.goSignUp}>Go to sign up</button>
                 <br/>
                 <div>{this.state.notifyMess}</div>
+            </Modal>
+                {/* <p>Login</p>
+                <input name='username' onChange={this.updateInput} value={this.state.username} type='text'></input>
+                <br/>
+                <input name='password' onChange={this.updateInput} value={this.state.password} type='password'></input>
+                <br/>
+                <button type='button' onClick={this.login}>Login</button>
+                <button type='button' onClick={this.goSignUp}>Go to sign up</button>
+                <br/>
+                <div>{this.state.notifyMess}</div> */}
             </div>
         )
     }

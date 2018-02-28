@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './style.css';
-import { registerHandleResponse } from '../../something';
+import { registerHandleResponse, removeHandleResponse } from '../../something';
 import loginAction from '../../actions/loginAction';
+import Modal from '../Modal';
 
 class SignUpForm extends Component {
     constructor() {
@@ -26,6 +27,13 @@ class SignUpForm extends Component {
         });
     }
 
+    componentWillUnmount() {
+        removeHandleResponse('userSignUp', (result) => {
+            this.notify(result.result);
+            console.log(result);
+        })
+    }
+
     updateInput(event) {
         let field = event.target.name;
         this.setState({
@@ -45,7 +53,10 @@ class SignUpForm extends Component {
                 username: this.state.username,
                 password: this.state.password
             }
-            loginAction.signUp(payload);
+            loginAction.signUp(payload, (err, response) => {
+                if (err) return console.log(err);
+                console.log(response);
+            });
         }
     }
 
@@ -63,6 +74,7 @@ class SignUpForm extends Component {
     render() {
         return (
             <div className="signUpForm">
+            <Modal isOpen='true'>
                 <p>Sign Up</p>
                 <input name='username' onChange={this.updateInput} value={this.state.username} type='text'></input>
                 <br/>
@@ -74,6 +86,18 @@ class SignUpForm extends Component {
                 <button type='button' onClick={this.toLogin}>Go go login</button>
                 <br/>
                 <div>{this.state.notifyMess}</div>
+            </Modal>
+                {/* <p>Sign Up</p>
+                <input name='username' onChange={this.updateInput} value={this.state.username} type='text'></input>
+                <br/>
+                <input name='password' onChange={this.updateInput} value={this.state.password} type='password'></input>
+                <br />
+                <input name='re_password' onChange={this.updateInput} value={this.state.re_password} type='password'></input>
+                <br/>
+                <button type='button' onClick={this.signUp}>Sign up</button>
+                <button type='button' onClick={this.toLogin}>Go go login</button>
+                <br/>
+                <div>{this.state.notifyMess}</div> */}
             </div>
         )
     }

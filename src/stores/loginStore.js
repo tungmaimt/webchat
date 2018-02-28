@@ -1,10 +1,11 @@
 import { EventEmitter } from 'events';
 import Dispatcher from '../dispatcher';
 import ActionTypes from '../constants';
+import { localStorage } from '../something';
 
 const CHANGE_LOGIN_STAGE = 'CHANGE_LOGIN_STATE';
 const CHANGE_SIGN_UP_STATE = 'CHANGE_SIGN_UP_STATE';
-let islogin = false;
+let islogin = localStorage.getToken ? true: false;
 let isSignUp = false;
 
 class UserStore extends EventEmitter {
@@ -22,6 +23,7 @@ class UserStore extends EventEmitter {
             case ActionTypes.CHANGE_SIGN_UP_STATE:
                 this.changeSignUpState(action.payload);
             break;
+            default: 
         }
     }
 

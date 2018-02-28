@@ -7,27 +7,24 @@ const handleResponse = (response, data) => {
 }
 
 const registerHandleResponse = (response, callback) => {
-    if (handlers.length === 0) {
-        handlers.push({
-            response: response,
-            handle: callback
-        })
-    } else {
-        let check = 0;
-        handlers.forEach((element, index) => {
-            if (check === 0) {
-                if (response === element.response && callback === element.handle) {
-                    check = 1;
-                }
-            } else if (check !== 1 && index === handlers.length - 1) {
-                handlers.push({
-                    response: response,
-                    handle: callback
-                })
-            }
-        });
+    let handler = {
+        response: response,
+        handle: callback
     }
+    handlers.push(handler);
 }
 
-export {handleResponse};
-export {registerHandleResponse};
+const removeHandleResponse = (response, callback) => {
+    let handler = {
+        response: response,
+        handle: callback
+    }
+    handlers.forEach((element, index) => {
+        if (JSON.stringify(element) === JSON.stringify(handler)) {
+            handlers.splice(index, 1);
+        }
+    })
+}
+
+export { handleResponse };
+export { registerHandleResponse, removeHandleResponse };

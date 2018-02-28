@@ -8,18 +8,17 @@ const secret = 'somethingsecret';
 const { queue } = require('../queue');
 
 router.get('/', (req, res) => {
-    return  res.json({res: 'notthing'});
-    let payload = { 
-        username: req.body.username, 
-        password: md5(req.body.password) 
-    };
+    let payload = { id: req.headers['_id']};
     queue.push({
-        topic: queue.TOPIC.userAction,
+        topic: queue.TOPIC.USER_ACTION,
         stream: queue.STREAM,
-        type: queue.TYPE.LOGIN,
-        data: { payload: payload, socketId: req.body.socketId }
+        type: queue.TYPE.GET_USER_INFO,
+        data: { payload: payload }
     }, (err) => {
-        if (err) return res.json({ err });
+        if (err) {
+            console.log(err);
+            return res.json({ err });
+        }
         res.json({ res: 'ok' });
     });
 });
@@ -30,12 +29,15 @@ router.post('/', (req, res) => {
         password: md5(req.body.password)
     };
     queue.push({
-        topic: queue.TOPIC.userAction,
+        topic: queue.TOPIC.USER_ACTION,
         stream: queue.STREAM,
         type: queue.TYPE.SIGN_UP,
         data: { payload: payload, socketId: req.body.socketId }
     }, (err) => {
-        if (err) return res.json({ err });
+        if (err) {
+            console.log(err);
+            return res.json({ err });
+        }
         res.json({ res: 'ok' });
     });
 });
@@ -46,7 +48,7 @@ router.post('/oauth', (req, res) => {
         password: md5(req.body.password) 
     };
     queue.push({
-        topic: queue.TOPIC.userAction,
+        topic: queue.TOPIC.USER_ACTION,
         stream: queue.STREAM,
         type: queue.TYPE.LOGIN,
         data: { payload: payload, socketId: req.body.socketId }
@@ -54,6 +56,12 @@ router.post('/oauth', (req, res) => {
         if (err) return res.json({ err });
         res.json({ res: 'ok' });
     });
-})
+});
+
+// router.get('/:searchingKey', (req, res) => {
+//     res.json({ res: 'ok' });
+
+//     console.log(req.params.searchingKey);
+// });
 
 module.exports = router;

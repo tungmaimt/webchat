@@ -1,30 +1,35 @@
 const rsq = require('rsq');
 const queue = new rsq( 'wc', { redisConfig: { host: '192.168.73.167' } } );
-const jwt = require('jsonwebtoken');
+// const queue = new rsq('wc', { redisConfig: { host: '192.168.0.107' } });
+// const jwt = require('jsonwebtoken');
 const md5 = require('md5');
-const secret = 'somethingSecret';
+// const secret = 'somethingsecret';
 
-const { getUser, addUser } = require('./mongodb');
+const mongodb = require('./mongodb');
+const { updateSocketUserId, socketMap } = require('./socketMapping');
+const verifyToken = require('./verifyToken');
 
 const TOPIC = {
-    userAction: 'userAction',
-    message: 'message'
-}
+    USER_ACTION: 'USER_ACTION',
+    message: 'message',
+};
 const STREAM = 'redis';
 const TYPE = {
     LOGIN: 'login',
     SIGN_UP: 'signUp',
-    MESSAGE: 'message'
+    GET_USER_INFO: 'getUserInfo',
+    SAVE_FRIEND_MESSAGE: 'saveMessage',
+    GET_FRIEND_MESSAGE: 'getMessage',
 };
 
-queue.newTopic(TOPIC.userAction).newStream('redis');
-queue.newTopic(TOPIC.message).newStream('redis');
+queue.newTopic(TOPIC.USER_ACTION).newStream(STREAM);
+queue.newTopic(TOPIC.message).newStream(STREAM);
 
 const registerQueue = (socket) => {
     queue.registHandle(
-        [ { topic: TOPIC.userAction, stream: STREAM, type: TYPE.LOGIN } ],
+        [ { topic: TOPIC.USER_ACTION, stream: STREAM, type: TYPE.LOGIN } ],
         (message, done) => {
-            getUser(message.data.payload, (err, result) => {
+            mongodb.getUser(message.data.payload, (err, result) => {
                 if (err) {
                     socket(message.data.socketId, 'response', { err });
                     return done();
@@ -36,24 +41,33 @@ const registerQueue = (socket) => {
                     });
                     return done();
                 }
-                token = jwt.sign({ id: result._id }, secret, { expiresIn: '30d' });
+                token = verifyToken.sign({ userId: result._id });
                 socket(message.data.socketId, 'response', {
                     response: 'userLogin',
                     result: { success: true, token: token, _id: result._id }
                 });
+                updateSocketUserId(message.data.socketId, result._id);
                 done();
             });
         }
     );
     
     queue.registHandle(
-        [ { topic: TOPIC.userAction, stream: STREAM, type: TYPE.SIGN_UP } ],
+        [ { topic: TOPIC.USER_ACTION, stream: STREAM, type: TYPE.SIGN_UP } ],
         (message, done) => {
-            addUser(message.data.payload, (err, result) => {
+            mongodb.addUser(message.data.payload, (err, result) => {
                 if (err) {
                     socket(message.data.socketId, 'response', { 
                         response: 'userSignUp',
                         result: { resule: err, success: false }
+                    });
+                    return done();
+                }
+                if (result === 'user allready exists') {
+                    console.log('use');
+                    socket(message.data.socketId, 'response', {
+                        response: 'userSignUp',
+                        result: { result, success: false }
                     });
                     return done();
                 }
@@ -65,7 +79,59 @@ const registerQueue = (socket) => {
             });
         }
     );
+
+    queue.registHandle([ { topic: TOPIC.USER_ACTION, stream: STREAM, type: TYPE.GET_USER_INFO } ],
+    (message, done) => {
+        mongodb.getUserInfo(message.data.payload, (err, result) => {
+            if (err) {
+                console.log(err);
+                return done();
+            }
+
+            mongodb.getFriendsInfo(result.friends, (err, result2) => {
+                if (err) {
+                    console.log(err);
+                    return done();
+                }
+                let check = 0;
+                let count = 0;
+                if (socketMap.length === 0) return done();
+                socketMap.forEach((element, index) => {
+                    if (JSON.stringify(element.userId) === JSON.stringify(result.id)) {
+                        socket(element.socketId, 'response', {
+                            response: 'loadUserInfo',
+                            result: { result, success: true }   
+                        });
+                        socket(element.socketId, 'response', {
+                            response: 'loadFriendsInfo',
+                            result: { result: result2, success: true }
+                        })
+                        done();
+                        check = 1;
+                    }
+                    count++;
+                    if (count === socketMap.length && check === 0) done();
+                });
+            });
+
+            
+        })
+    });
+
+    // queue.registHandle([ { topic: 'something', stream: STREAM, type: TYPE.SAVE_FRIEND_MESSAGE } ],
+    // (message, done) => {
+    //     mongodb.saveFriendMessage(message.data.payload, (err, result) => {
+    //         if (err) {
+    //             console.log(err);
+    //             return done();
+    //         }
+    //         console.log(result);
+    //         return done();
+    //     });
+    // });
 };
+
+
 
 module.exports.queue = {
     push: (message, callback) => {

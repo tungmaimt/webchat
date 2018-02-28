@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-// import logo from '../logo.svg';
 import './App.css';
 import Asidebar from './Asidebar';
 import Main from './Main';
 import LoginModal from './LoginModal';
-import { fetchSomething, socket } from '../something';
 
 
 class App extends Component {
+  
   render() {
     return (
       <div className="flex">
