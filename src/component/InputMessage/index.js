@@ -42,7 +42,7 @@ class InputMessage extends Component {
 
     moveScroll() {
         let chatContent = document.getElementsByClassName('chat-content');
-        chatContent[0].scrollTop = chatContent[0].scrollHeight;
+        if (chatContent[0].scrollTop) chatContent[0].scrollTop = chatContent[0].scrollHeight;
     }
 
     sendFriendMessage(event) {

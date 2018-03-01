@@ -217,6 +217,10 @@ class SomeMongo {
             })
         }
 
+        if (filters.length === 0) {
+            return callback(null, []);
+        }
+
         filters.forEach((element, index) => {
             friends.push({ id: new ObjectID(element.id) });
             check++;

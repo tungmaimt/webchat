@@ -1,9 +1,7 @@
 const rsq = require('rsq');
 const queue = new rsq( 'wc', { redisConfig: { host: '192.168.73.167' } } );
 // const queue = new rsq('wc', { redisConfig: { host: '192.168.0.107' } });
-// const jwt = require('jsonwebtoken');
 const md5 = require('md5');
-// const secret = 'somethingsecret';
 
 const mongodb = require('./mongodb');
 const { updateSocketUserId, socketMap } = require('./socketMapping');
@@ -32,21 +30,19 @@ const registerQueue = (socket) => {
             mongodb.getUser(message.data.payload, (err, result) => {
                 if (err) {
                     socket(message.data.socketId, 'response', { err });
-                    return done();
-                }
-                if (!result) {
+                } else if (!result) {
                     socket(message.data.socketId, 'response', {
                         response: 'userLogin',
                         result: { success: false, token: 'notthing', _id: 'cant find' }
                     });
-                    return done();
+                } else {
+                    token = verifyToken.sign({ userId: result._id });
+                    socket(message.data.socketId, 'response', {
+                        response: 'userLogin',
+                        result: { success: true, token: token, _id: result._id }
+                    });
+                    updateSocketUserId(message.data.socketId, result._id);
                 }
-                token = verifyToken.sign({ userId: result._id });
-                socket(message.data.socketId, 'response', {
-                    response: 'userLogin',
-                    result: { success: true, token: token, _id: result._id }
-                });
-                updateSocketUserId(message.data.socketId, result._id);
                 done();
             });
         }
@@ -61,17 +57,12 @@ const registerQueue = (socket) => {
                         response: 'userSignUp',
                         result: { result: err, success: false }
                     });
-                    return done();
-                }
-                if (result === 'user allready exists') {
-                    console.log('use');
+                } else if (result === 'user allready exists') {
                     socket(message.data.socketId, 'response', {
                         response: 'userSignUp',
                         result: { result, success: false }
                     });
-                    return done();
-                }
-                socket(message.data.socketId, 'response', {
+                } else socket(message.data.socketId, 'response', {
                     response: 'userSignUp',
                     result: { result, success: true }
                 });
@@ -88,14 +79,13 @@ const registerQueue = (socket) => {
                 return done();
             }
 
+            console.log('qu');
+
             mongodb.getFriendsInfo(result.friends, (err, result2) => {
                 if (err) {
                     console.log(err);
                     return done();
                 }
-
-                let check = 0;
-                let count = 0;
 
                 if (socketMap.length === 0) return done();
                 socketMap.forEach((element, index) => {
@@ -108,12 +98,9 @@ const registerQueue = (socket) => {
                             response: 'loadFriendsInfo',
                             result: { result: result2, success: true }
                         })
-                        done();
-                        check = 1;
                     }
-                    count++;
-                    if (count === socketMap.length && check === 0) done();
                 });
+                done();
             });
         })
     });
