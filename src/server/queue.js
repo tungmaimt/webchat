@@ -1,5 +1,14 @@
 const rsq = require('rsq');
-const queue = new rsq( 'wc', { redisConfig: { host: '192.168.73.167' } } );
+
+const REDIS_CONNECT_URL = process.env.REDIS_CONNECT_URL
+
+const queue = new rsq(
+    'wc',
+    {
+        redisConfig: { url: REDIS_CONNECT_URL }
+    }
+);
+
 // const queue = new rsq('wc', { redisConfig: { host: '192.168.0.107' } });
 // const jwt = require('jsonwebtoken');
 const md5 = require('md5');
@@ -51,13 +60,13 @@ const registerQueue = (socket) => {
             });
         }
     );
-    
+
     queue.registHandle(
         [ { topic: TOPIC.USER_ACTION, stream: STREAM, type: TYPE.SIGN_UP } ],
         (message, done) => {
             mongodb.addUser(message.data.payload, (err, result) => {
                 if (err) {
-                    socket(message.data.socketId, 'response', { 
+                    socket(message.data.socketId, 'response', {
                         response: 'userSignUp',
                         result: { result: err, success: false }
                     });
@@ -102,7 +111,7 @@ const registerQueue = (socket) => {
                     if (JSON.stringify(element.userId) === JSON.stringify(result.id)) {
                         socket(element.socketId, 'response', {
                             response: 'loadUserInfo',
-                            result: { result, success: true }   
+                            result: { result, success: true }
                         });
                         socket(element.socketId, 'response', {
                             response: 'loadFriendsInfo',
@@ -153,10 +162,10 @@ const registerQueue = (socket) => {
                     JSON.stringify(message.data.payload.friend_id) === JSON.stringify(element.userId)) {
                         socket(element.socketId, 'response', {
                             response: 'directMessage',
-                            result: { 
+                            result: {
                                 success: true,
                                 result: {
-                                    sender: message.data.payload.id, 
+                                    sender: message.data.payload.id,
                                     contents: message.data.payload.contents
                                 }
                             }

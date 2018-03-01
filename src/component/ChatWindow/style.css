@@ -2,18 +2,30 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    border-bottom: 1px solid #999;
 }
 
 .chat-window .top {
+    background-color: #fff;
     font-size: 35px;
     display: flex;
     flex-direction: row;
     flex-basis: 50px;
-    background-color: aliceblue;
+    border-bottom: 1px solid #999;
 }
 
 .chat-window .top .title {
-    flex-grow: 1;
+    padding: 10px 20px;
+    flex: auto;
+    font-size: 23px;
+    color: #333;
+    letter-spacing: 2px;
+}
+
+.chat-window .top .btn {
+    color: #737373;
+    padding: 0 10px;
+    cursor: pointer;
 }
 
 .chat-window .top .setting-icon {

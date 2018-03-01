@@ -8,3 +8,28 @@
     width: 100%;
     border: 0 solid #000;
 }
+
+.input-message {
+    display: flex;
+    height: 50px;
+}
+
+.input-message .btn {
+    line-height: 50px;
+    color: #737373;
+    height: 50px;
+    background: #fff;
+    padding: 0 10px;
+}
+
+.input-message .btn:hover {
+    background-color: #f1f0f0;
+    cursor: pointer;
+}
+
+.input-message textarea {
+    padding: 10px;
+    flex: auto;
+    resize: none;
+    border: none;
+}

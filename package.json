@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "concurrently": "^3.5.1",
+    "dotenv": "^5.0.1",
     "flux": "^3.1.3",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
@@ -14,8 +15,8 @@
   "scripts": {
     "dev": "concurrently --kill-others --names 'SERVER,CLIENT,DATABASE' 'npm run server' 'npm run client' 'npm run database'",
     "client": "react-scripts start",
-    "server": "node src/server/server",
-    "database": "mongod --dbpath c:/data/db",
+    "server": "node src/server/app",
+    "database": "mongod --dbpath data",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

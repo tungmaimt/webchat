@@ -12,7 +12,7 @@ class InputMessage extends Component {
             inputMessage: '',
             chatObj: {}
         }
-        
+
         this.sendFriendMessage = this.sendFriendMessage.bind(this);
         this.updateInput = this.updateInput.bind(this);
     }
@@ -55,7 +55,7 @@ class InputMessage extends Component {
             messageAction.sendFriendMessage(payload, () => {
                 console.log(payload);
             });
-            
+
             this.setState({
                 inputMessage: ''
             });
@@ -67,12 +67,19 @@ class InputMessage extends Component {
     render() {
         return (
             <div className="input-message">
-                <input name='inputMessage' 
-                    onChange={this.updateInput} 
-                    value={this.state.inputMessage} 
+                <textarea name='inputMessage'
+                    onChange={this.updateInput}
+                    value={this.state.inputMessage}
                     type='text'
-                    onKeyPress={this.sendFriendMessage}/>
-                <div>some addable icon</div>
+                    onKeyPress={this.sendFriendMessage}
+                ></textarea>
+
+                <div className="btn">
+                    <i className="far fa-smile"></i>
+                </div>
+                <div className="btn">
+                    <i className="fab fa-telegram-plane"></i>
+                </div>
             </div>
         );
     }

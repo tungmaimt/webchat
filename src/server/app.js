@@ -7,10 +7,17 @@ const cookieParser = require('cookie-parser');
 const router = require('./routes/router');
 const { mapSocketId, unMapSocketId, socketMap } = require('./socketMapping');
 const veryfyToken = require('./verifyToken');
+const path = require('path')
 
 const app = express();
 const server = http.createServer(app);
 const scServer = socketclusterServer.attach(server);
+
+const dotenv = require('dotenv')
+
+// load environment
+dotenv.config({ path: path.join(__dirname, '../../.env.local') })
+console.log(process.env.REDIS_CONNECT_URL)
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

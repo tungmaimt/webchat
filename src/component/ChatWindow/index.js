@@ -8,7 +8,7 @@ import messageAction from '../../actions/messageAction';
 class ChatWindow extends Component {
 
     constructor() {
-        super() 
+        super()
 
         this.state = {
             chatMess: [],
@@ -84,16 +84,22 @@ class ChatWindow extends Component {
     }
 
     render() {
+        const listMessage = this.state.chatMess.map((item, index) => {
+            return <li key={index}>{item.contents}</li>
+        })
+
         return (
             <div className="chat-window">
             <div className="top">
-                <div className="title">{this.state.title}</div>
-                <i className="fas fa-cog setting-icon"></i>
+                <div className="title">{this.state.title || 'Title'}</div>
+                <div className="btn">
+                    <i className="fas fa-cog setting-icon"></i>
+                </div>
             </div>
-            <div className="chat-content">
-                <ul>{this.state.chatMess.map((item, index) => {
-                    return <li key={index}>{item.contents}</li>
-                })}</ul>
+            <div className="chat-co ntent">
+                <ul>
+                    {listMessage}
+                </ul>
             </div>
             </div>
         );
