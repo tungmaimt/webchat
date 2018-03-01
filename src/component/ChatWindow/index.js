@@ -85,7 +85,9 @@ class ChatWindow extends Component {
 
     render() {
         const listMessage = this.state.chatMess.map((item, index) => {
-            return <li key={index}>{item.contents}</li>
+            return (
+                <Message own={true} message={item.contents} />
+            )
         })
 
         return (
@@ -98,12 +100,22 @@ class ChatWindow extends Component {
             </div>
             <div className="chat-content">
                 <ul>
-                    {listMessage}
+                    { listMessage }
                 </ul>
             </div>
             </div>
         );
     }
+}
+
+const Message = ({ own, active }) => {
+    return (
+        <div className={`message-box ${own? 'own' : ''} ${active? 'active' : ''}`}>
+            <img className="ava" src="/static/media/default_ava.cf22e533.jpg"/>
+            <div className="message">message</div>
+            <div className="info">12/12/2018</div>
+        </div>
+    )
 }
 
 export default ChatWindow;

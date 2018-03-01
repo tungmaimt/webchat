@@ -78,13 +78,12 @@ class Contacts extends Component {
             return (
                 <li key={item.id} id={index} ma={item.id} onClick={this.chooseItem}>
                     {item.info.name}
-                    
+
                 </li>
             )
         });
 
         return (
-<<<<<<< HEAD
             <ul>
                 {this.state.friends.map((item, index) => {
                     return (<li key={item.id} id={index} ma={item.id} onClick={this.chooseItem}>{item.info.name}</li>)
@@ -96,10 +95,6 @@ class Contacts extends Component {
                 <Contact username="huong" online={true} />
                 <Contact username="huong" online={true} />
                 <Contact username="huong" online={true} />
-=======
-            <ul>Contacts
-                {listItem}
->>>>>>> 0ffc5700652860f108601a50a99ff8c44524178d
             </ul>
         )
     }
