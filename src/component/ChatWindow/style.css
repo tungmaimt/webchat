@@ -34,6 +34,7 @@
 }
 
 .chat-window .chat-content {
+    padding-right: 15px;
     height: 83vh;
     font-size: 20px;
     overflow: auto;
@@ -41,4 +42,55 @@
 
 .chat-window ul {
     list-style: none;
+}
+
+.chat-window .message {
+    order: 3;
+    flex: auto;
+    margin: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    background: #e0e0e0;
+    margin-right: 100px;
+}
+
+.chat-window .message-box.own .message {
+    order: 1;
+    color: #fff;
+    margin: 10px;
+    background: #4080ff;
+    margin-left: 100px;
+}
+
+.chat-window .message-box {
+    position: relative;
+    display: flex;
+}
+
+.chat-window .ava {
+    margin: 10px 0;
+    display: flex;
+    order: 2;
+}
+
+.chat-window .info {
+    font-size: 11px;
+    color: #aaa;
+    position: absolute;
+    bottom: -5px;
+    right: 100px;
+    display: none;
+}
+
+.chat-window .message-box.own .info {
+    left: 100px;
+}
+
+.chat-window .message-box:hover .info {
+    display: block;
+}
+
+.chat-window .message-box.active .info {
+    display: block;
 }
