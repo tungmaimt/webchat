@@ -5,15 +5,14 @@ import './Modal.css'
 class Modal extends Component {
 
   render() {
-    const { isOpen, close, children } = this.props
+    const { isOpen, close, children, title } = this.props
 
     return (
       <div className={`modal ${isOpen? 'fade-in' : 'fade-out'}`}>
         <div className="modal-overlay"></div>
         <div className="modal-dialog">
           <div className="modal-header">
-            <span className="modal-header-title">Title</span>
-            <i className="fa fa-times modal-header-btn" onClick={close}></i>
+            <span className="modal-header-title">{ title }</span>
           </div>
           <div className="modal-content">
             { children }

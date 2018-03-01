@@ -2,3 +2,6 @@
     margin: 0 auto;
     background: #ff0;
 }
+.loginForm button {
+    margin-top: 20px;
+}

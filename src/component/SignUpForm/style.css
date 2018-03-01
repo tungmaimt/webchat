@@ -2,3 +2,7 @@
     margin: 0 auto;
     background-color: #ffa;
 }
+
+.signUpForm button {
+    margin-top: 20px;
+}

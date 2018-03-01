@@ -10,3 +10,32 @@ body {
   box-sizing: border-box;
   outline: none;
 }
+
+input {
+  margin: 5px;
+  border-radius: 2px;
+  width: 100%;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-left: 0;
+}
+
+button {
+  cursor: pointer;
+  padding: 10px 15px;
+  margin-right: 10px;
+  background: #999;
+  border: 1px solid #909090;
+  border-radius: 2px;
+  color: #fff;
+}
+
+button.danger {
+  border: 1px solid #c52014;
+  background: #F44336;
+}
+
+button.primary {
+  background: #2196F3;
+  border: 1px solid #0577d2;
+}

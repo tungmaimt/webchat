@@ -10,8 +10,8 @@ class LoginForm extends Component {
         super();
 
         this.state = {
-            username: 'caigi',
-            password: 'caigi',
+            username: '',
+            password: '',
             notifyMess: ''
         };
 
@@ -35,7 +35,7 @@ class LoginForm extends Component {
                 localStorage.save(result.token, result._id);
                 userAction.getInfo(localStorage.get_Id(), (err, response) => {
                     if (err) {
-                        if (err.name === 'JsonWebTokenError') 
+                        if (err.name === 'JsonWebTokenError')
                             console.log('JsonWebTokenError');
                     }
                 })
@@ -85,15 +85,11 @@ class LoginForm extends Component {
     render() {
         return (
             <div className="loginForm">
-            <Modal isOpen='true'>
-                <p>Login</p>
-                <input name='username' onChange={this.updateInput} value={this.state.username} type='text'></input>
-                <br/>
-                <input name='password' onChange={this.updateInput} value={this.state.password} type='password'></input>
-                <br/>
-                <button type='button' onClick={this.login}>Login</button>
-                <button type='button' onClick={this.goSignUp}>Go to sign up</button>
-                <br/>
+            <Modal isOpen='true' title="Login">
+                <input name='username' onChange={this.updateInput} value={this.state.username} placeholder="Input username ..."></input>
+                <input name='password' onChange={this.updateInput} value={this.state.password} placeholder="Input password ..."></input>
+                <button className="primary" type='button' onClick={this.login}>Login</button>
+                <button className="danger" type='button' onClick={this.goSignUp}>Go to sign up</button>
                 <div>{this.state.notifyMess}</div>
             </Modal>
                 {/* <p>Login</p>

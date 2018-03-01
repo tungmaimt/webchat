@@ -74,16 +74,15 @@ class SignUpForm extends Component {
     render() {
         return (
             <div className="signUpForm">
-            <Modal isOpen='true'>
-                <p>Sign Up</p>
-                <input name='username' onChange={this.updateInput} value={this.state.username} type='text'></input>
+            <Modal isOpen='true' title="Sign Up">
+                <input name='username' onChange={this.updateInput} value={this.state.username} type='text' placeholder="Input username ..."></input>
                 <br/>
-                <input name='password' onChange={this.updateInput} value={this.state.password} type='password'></input>
+                <input name='password' onChange={this.updateInput} value={this.state.password} type='password' placeholder="Input password ..."></input>
                 <br />
-                <input name='re_password' onChange={this.updateInput} value={this.state.re_password} type='password'></input>
+                <input name='re_password' onChange={this.updateInput} value={this.state.re_password} type='password' placeholder="Re-input password ..."></input>
                 <br/>
-                <button type='button' onClick={this.signUp}>Sign up</button>
-                <button type='button' onClick={this.toLogin}>Go go login</button>
+                <button className="primary" type='button' onClick={this.signUp}>Sign up</button>
+                <button className="danger" type='button' onClick={this.toLogin}>Go go login</button>
                 <br/>
                 <div>{this.state.notifyMess}</div>
             </Modal>
