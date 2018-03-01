@@ -1,6 +1,6 @@
 .main {
     width: 75%;
-    height: 500px;
+    height: 100vh;
     background-color: #aaffff;
     display: flex;
     flex-direction: column;

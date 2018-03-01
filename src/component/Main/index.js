@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './style.css';
-// import { BrowserRouter, Router, Link } from 'react-router-dom';
 import ChatWindow from '../ChatWindow';
 import InputMessage from '../InputMessage';
 // import { localStorage, fetchSomething } from '../../something/'

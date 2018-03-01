@@ -59,7 +59,7 @@ const registerQueue = (socket) => {
                 if (err) {
                     socket(message.data.socketId, 'response', { 
                         response: 'userSignUp',
-                        result: { resule: err, success: false }
+                        result: { result: err, success: false }
                     });
                     return done();
                 }
@@ -93,8 +93,10 @@ const registerQueue = (socket) => {
                     console.log(err);
                     return done();
                 }
+
                 let check = 0;
                 let count = 0;
+
                 if (socketMap.length === 0) return done();
                 socketMap.forEach((element, index) => {
                     if (JSON.stringify(element.userId) === JSON.stringify(result.id)) {
@@ -113,22 +115,58 @@ const registerQueue = (socket) => {
                     if (count === socketMap.length && check === 0) done();
                 });
             });
-
-            
         })
     });
 
-    // queue.registHandle([ { topic: 'something', stream: STREAM, type: TYPE.SAVE_FRIEND_MESSAGE } ],
-    // (message, done) => {
-    //     mongodb.saveFriendMessage(message.data.payload, (err, result) => {
-    //         if (err) {
-    //             console.log(err);
-    //             return done();
-    //         }
-    //         console.log(result);
-    //         return done();
-    //     });
-    // });
+    queue.registHandle(
+        [ { topic: TOPIC.message, stream: STREAM, type: TYPE.GET_FRIEND_MESSAGE } ],
+        (message, done) => {
+            mongodb.getFriendMessages(message.data.payload, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return done();
+                }
+                console.log(message);
+                socketMap.forEach((element, index) => {
+                    if (JSON.stringify(element.userId) === JSON.stringify(message.data.payload.id)) {
+                        socket(element.socketId, 'response', {
+                            response: 'loadFriendMessages',
+                            result: { success: true, result }
+                        })
+                    }
+                })
+                return done();
+            })
+        }
+    );
+
+    queue.registHandle(
+        [ { topic: TOPIC.message, stream: STREAM, type: TYPE.SAVE_FRIEND_MESSAGE } ],
+        (message, done) => {
+            mongodb.saveFriendMessage(message.data.payload, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return done();
+                }
+                socketMap.forEach((element, index) => {
+                    if (JSON.stringify(message.data.payload.id) === JSON.stringify(element.userId) ||
+                    JSON.stringify(message.data.payload.friend_id) === JSON.stringify(element.userId)) {
+                        socket(element.socketId, 'response', {
+                            response: 'directMessage',
+                            result: { 
+                                success: true,
+                                result: {
+                                    sender: message.data.payload.id, 
+                                    contents: message.data.payload.contents
+                                }
+                            }
+                        });
+                    }
+                })
+                return done();
+            })
+        }
+    )
 };
 
 

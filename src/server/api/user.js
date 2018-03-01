@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
 const md5 = require('md5');
-const { getUser, addUser } = require('../mongodb');
 
-const secret = 'somethingsecret';
 const { queue } = require('../queue');
 
 router.get('/', (req, res) => {

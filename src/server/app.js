@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
 const router = require('./routes/router');
+const { mapSocketId, unMapSocketId, socketMap } = require('./socketMapping');
+const veryfyToken = require('./verifyToken');
 
 const app = express();
 const server = http.createServer(app);
@@ -14,9 +16,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/', router);
-const { mapSocketId, unMapSocketId, socketMap } = require('./socketMapping');
 
-let { attachSocket } = require('./queue');
+let { queue, attachSocket } = require('./queue');
 
 attachSocket((socketId, response, payload) => {
     scServer.clients[socketId].emit(response, payload);
@@ -31,6 +32,25 @@ scServer.on('connection', (socket) => {
     socket.on('disconnect', function () {
         unMapSocketId(socket.id);
     });
+
+    socket.on('wcMessage', (data) => {
+        veryfyToken.verify(data.token, (err, decoded) => {
+            if (err) return socket.emit('error', { err });
+        });
+        let payload = {
+            id: data.id,
+            friend_id: data.friend_id,
+            contents: data.message
+        }
+        queue.push({
+            topic: queue.TOPIC.message,
+            stream: queue.STREAM,
+            type: queue.TYPE.SAVE_FRIEND_MESSAGE,
+            data: { payload }
+        }, (err) => {
+            if (err) console.log(err);
+        })
+    })
 });
 
 

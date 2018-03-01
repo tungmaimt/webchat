@@ -113,23 +113,23 @@ const mongodb = require('./mongodb');
 //     })
 // })
 
-mongoClient.connect(url, (err, client) => {
-    let db = client.db(dbName);
-    let query = {info: {name: "caigi"}};
-    db.collection('users_info').find({ 'info.name': 'caigi' }).toArray((err, docs) => {
-        if (err) {
-            console.log(err);
-            return client.close();
-        }
-        console.log(docs[0].friends);
-        client.close();
-        mongodb.getFriendsInfo(docs[0].friends, (err, result) => {
-            if (err) {
-                console.log(err);
-                return client.close();
-            }
-            console.log(result);
-            client.close();
-        });
-    })
-})
+// mongoClient.connect(url, (err, client) => {
+//     let db = client.db(dbName);
+//     let query = {info: {name: "caigi"}};
+//     db.collection('users_info').find({ 'info.name': 'caigi' }).toArray((err, docs) => {
+//         if (err) {
+//             console.log(err);
+//             return client.close();
+//         }
+//         console.log(docs[0].friends);
+//         client.close();
+//         mongodb.getFriendsInfo(docs[0].friends, (err, result) => {
+//             if (err) {
+//                 console.log(err);
+//                 return client.close();
+//             }
+//             console.log(result);
+//             client.close();
+//         });
+//     })
+// })

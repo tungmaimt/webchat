@@ -1,6 +1,6 @@
 .asidebar {
     width: 25%;
-    height: 500px;
+    height: 100vh;
     background-color: #0ff;
     display: flex;
     flex-direction: column;

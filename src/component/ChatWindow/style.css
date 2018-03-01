@@ -1,21 +1,30 @@
 .chat-window {
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .chat-window .top {
+    font-size: 35px;
     display: flex;
     flex-direction: row;
+    flex-basis: 50px;
     background-color: aliceblue;
-    font-size: 35px;
 }
 
-.chat-window .title {
+.chat-window .top .title {
     flex-grow: 1;
 }
 
 .chat-window .top .setting-icon {
     font-size: 24px;
     line-height: 24px;
+}
+
+.chat-window .chat-content {
+    height: 83vh;
+    font-size: 20px;
+    overflow: auto;
 }
 
 .chat-window ul {

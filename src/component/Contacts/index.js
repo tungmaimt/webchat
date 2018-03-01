@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './style.css';
 import userStore from '../../stores/userStore';
 import userAction from '../../actions/userAction';
+import messageAction from '../../actions/messageAction';
 import { registerHandleResponse, removeHandleResponse } from '../../something';
 
 
@@ -12,6 +13,8 @@ class Contacts extends Component {
         this.state = {
             friends: []
         }
+
+        this.chooseItem = this.chooseItem.bind(this);
     }
 
     componentWillMount() {
@@ -32,7 +35,6 @@ class Contacts extends Component {
                 console.log(result);
                 return console.log('cant get friend info');
             }
-            console.log(result);
             userAction.loadFriendInfo(result.result);
         });
     }
@@ -60,16 +62,22 @@ class Contacts extends Component {
         });
     }
 
-    chat(event) {
-        console.log(event.target.getAttribute('ma'));
+    chooseItem(event) {
+        let payload = {
+            friendId: event.target.getAttribute('ma')
+        }
+        console.log(this.state.friends[event.target.id]);
+        messageAction.changeChatObj(this.state.friends[event.target.id]);
+        messageAction.getFriendMessage(payload, (response) => {
+            console.log(response);
+        })
     }
 
     render() {
         return (
             <ul>Contacts
-                {console.log(this.state.friends)}
-                {this.state.friends.map((item) => {
-                    return (<li key={item.id} id={item.id} ma={item.id} onClick={this.chat}>{item.info.name}</li>)
+                {this.state.friends.map((item, index) => {
+                    return (<li key={item.id} id={index} ma={item.id} onClick={this.chooseItem}>{item.info.name}</li>)
                 })}
             </ul>
         )

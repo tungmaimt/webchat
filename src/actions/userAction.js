@@ -18,7 +18,6 @@ class UserAction {
     }
 
     getInfo(payload, callback) {
-        console.log(localStorage.getToken());
         fetchSomething('/api/user', {
             method: 'GET',
             headers: new Headers({

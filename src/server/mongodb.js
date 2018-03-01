@@ -349,11 +349,12 @@ class SomeMongo {
         groupFriend.sort();
         message.group = groupFriend[0] + groupFriend[1];
         message.contents = payload.contents;
-        message.sender = payload.sender;
+        message.sender = payload.id;
         message.receivers = [];
-        message.receivers.push({ id: payload.receivers.id, seen: false });
+        message.receivers.push({ id: payload.friend_id, seen: false });
         message.created_date = Date.now();
-    
+        console.log(message);
+            
         connectDb((client, db) => {
             db.collection('messages').insertOne(message, (err, result) => {
                 if (err) {
@@ -362,7 +363,7 @@ class SomeMongo {
                     return callback(err);
                 }
                 client.close();
-                callback(null, result.ops[0]._id);
+                callback(null, result.ops[0]);
             })
         })
     }
@@ -372,13 +373,14 @@ class SomeMongo {
         let groupFriend = [payload.id, payload.friend_id];
         groupFriend.sort();
         message.group = groupFriend[0] + groupFriend[1];
-        message.from = payload.from;
-        message.to = payload.to;
+        message.from = parseInt(payload.from);
+        message.to = parseInt(payload.to);
+        console.log(message);
     
         connectDb((client, db) => {
             db.collection('messages').find({ 
-                group: groupFriend, 
-                created_date: { $gl: message.from, $lt: message.to } 
+                group: message.group,
+                created_date: {$gt: 1518951332141}
             }).toArray((err, docs) => {
                 if (err) {
                     console.log(err);

@@ -17,4 +17,8 @@ socket.on('response', (data) => {
     handleResponse(data.response, data.result);
 });
 
+socket.on('error', (data) => {
+    console.log('err', data);
+})
+
 export default socket;
