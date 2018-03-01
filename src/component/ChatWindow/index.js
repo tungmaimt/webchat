@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import './style.css';
 import messageStore from '../../stores/messageStore';
-import { registerHandleResponse, removeHandleResponse } from '../../something';
+import { registerHandleResponse, removeHandleResponse, localStorage } from '../../something';
 import messageAction from '../../actions/messageAction';
 
+let smooth = true;
 
 class ChatWindow extends Component {
 
@@ -21,7 +22,8 @@ class ChatWindow extends Component {
             this.setState({
                 chatMess: messageStore.getChatMess()
             });
-            this.moveScroll()
+            this.moveScroll();
+            smooth = true;
         });
 
         messageStore.addChangeChatObjListener(() => {
@@ -48,6 +50,7 @@ class ChatWindow extends Component {
             console.log('cant load message');
             return console.log(result);
         }
+        smooth = false;
         messageAction.changeChatMess(result.result);
     }
 
@@ -57,6 +60,7 @@ class ChatWindow extends Component {
                 chatMess: messageStore.getChatMess()
             });
             this.moveScroll();
+            smooth = true;
         });
 
         messageStore.removeChangeChatObjListener(() => {
@@ -80,13 +84,19 @@ class ChatWindow extends Component {
 
     moveScroll() {
         let chatContent = document.getElementsByClassName('chat-content');
-        chatContent[0].scrollTop = chatContent[0].scrollHeight;
+        // chatContent[0].scrollTop = chatContent[0].scrollHeight;
+        chatContent[0].scroll({
+            top: chatContent[0].scrollHeight,
+            behavior: smooth ? 'smooth' : 'auto'
+        })
     }
 
     render() {
         const listMessage = this.state.chatMess.map((item, index) => {
+            let own = item.sender === localStorage.get_Id() ? true : false
+            let da = new Date(item.created_date).toLocaleTimeString();
             return (
-                <Message own={true} message={item.contents} />
+                <Message key={index} own={own} message={item.contents} date={da} />
             )
         })
 
@@ -108,12 +118,12 @@ class ChatWindow extends Component {
     }
 }
 
-const Message = ({ own, active }) => {
+const Message = ({ own, active, message, date }) => {
     return (
         <div className={`message-box ${own? 'own' : ''} ${active? 'active' : ''}`}>
             <img className="ava" src="/static/media/default_ava.cf22e533.jpg"/>
-            <div className="message">message</div>
-            <div className="info">12/12/2018</div>
+            <div className="message">{message}</div>
+            <div className="info">{date}</div>
         </div>
     )
 }

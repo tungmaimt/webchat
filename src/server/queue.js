@@ -153,7 +153,8 @@ const registerQueue = (socket) => {
                                 success: true,
                                 result: {
                                     sender: message.data.payload.id,
-                                    contents: message.data.payload.contents
+                                    contents: message.data.payload.contents,
+                                    created_date: Date.now()
                                 }
                             }
                         });

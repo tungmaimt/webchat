@@ -66,12 +66,12 @@ class Contacts extends Component {
         });
     }
 
-    chooseItem(event) {
+    chooseItem(ma, id) {
         let payload = {
-            friendId: event.target.getAttribute('ma')
+            friendId: ma
         }
-        console.log(this.state.friends[event.target.id]);
-        messageAction.changeChatObj(this.state.friends[event.target.id]);
+        console.log(ma);
+        messageAction.changeChatObj(this.state.friends[id]);
         messageAction.getFriendMessage(payload, (response) => {
             console.log(response);
         })
@@ -80,7 +80,7 @@ class Contacts extends Component {
     render() {
         const listItem = this.state.friends.map((item, index) => {
             return (
-                <Contact key={index} username={item.info.name} online={true} ma={item.id}/>
+                <Contact key={index} id={index} username={item.info.name} online={true} ma={item.id} onClick={this.chooseItem}/>
             )
         });
 
@@ -102,9 +102,9 @@ class Contacts extends Component {
     }
 }
 
-const Contact = ({ username, online, ma }) => {
+const Contact = ({ username, online, ma, onClick, id }) => {
     return (
-        <li className="contact-item" ma={ma}>
+        <li className="contact-item" ma={ma} onClick={() => {onClick(ma, id)}}>
             <img className="ava" src="/static/media/default_ava.cf22e533.jpg" alt="ava"/>
             <div className="contact-content">
                 <div className="username">{username}</div>

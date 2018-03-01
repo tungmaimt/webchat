@@ -48,7 +48,11 @@ class InputMessage extends Component {
 
     moveScroll() {
         let chatContent = document.getElementsByClassName('chat-content');
-        chatContent[0].scrollTop = chatContent[0].scrollHeight;
+        // chatContent[0].scrollTop = chatContent[0].scrollHeight;
+        chatContent[0].scroll({
+            top: chatContent[0].scrollHeight,
+            behavior: 'smooth'
+        });
     }
 
     pressFriendMessage(event) {
@@ -60,9 +64,15 @@ class InputMessage extends Component {
     }
 
     sendFriendMessage() {
+        let mes = this.state.inputMessage.substring(0, this.state.inputMessage.length - 1);
+        if (mes === '') {
+            return this.setState({
+                inputMessage: ''
+            })
+        }
         let payload = {
             friendId: this.state.chatObj.id,
-            message: this.state.inputMessage
+            message: mes
         }
         messageAction.sendFriendMessage(payload, () => {
             console.log(payload);
