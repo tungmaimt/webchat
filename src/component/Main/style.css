@@ -1,5 +1,5 @@
 .main {
-    width: 75%;
+    flex: auto;
     height: 100vh;
     background-color:#fff;
     display: flex;

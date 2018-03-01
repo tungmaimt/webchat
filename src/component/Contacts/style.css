@@ -5,3 +5,40 @@ ul {
 ul li {
     cursor: pointer;
 }
+
+.contact-item {
+    user-select: none;
+    display: flex;
+    color: #eee;
+    padding: 10px;
+    line-height: 35px;
+}
+
+.contact-item .contact-content {
+    flex: auto;
+    line-height: 16px;
+    padding-top: 5px;
+}
+
+.contact-item:hover {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.contact-item .contact-message {
+    font-size: 11px;
+    color: #969696;
+}
+
+.contact-item .ava {
+    width: 35px;
+    height: 35px;
+}
+
+.contact-item .dot {
+    padding: 0 10px;
+    font-size: 11px;
+}
+
+.contact-item .dot.active {
+    color: #4CAF50;
+}

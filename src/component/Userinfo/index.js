@@ -33,9 +33,14 @@ class Userinfo extends Component {
     render() {
         return (
             <div className="userinfo">
-                <img className="ava" src={ava} alt="ava"/>
-                <div className="username">{this.state.userInfo.name}</div>
-                <div>status here</div>
+                <div className="r-1">
+                    <img className="ava" src={ava} alt="ava"/>
+                    <div className="username">{this.state.userInfo.name}</div>
+                    <div className="dot active">
+                        <i className="fas fa-circle"></i>
+                    </div>
+                </div>
+                <div className="status">status here</div>
             </div>
         );
     }

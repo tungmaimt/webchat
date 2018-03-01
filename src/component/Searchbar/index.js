@@ -18,7 +18,7 @@ class Searchbar extends Component {
         //     console.log(this.state.searchingKey);
         //     userAction.search(this.state.searchingKey);
         // }
-        
+
     }
 
     updateInput(event) {
@@ -29,13 +29,14 @@ class Searchbar extends Component {
 
     render() {
         return (
-            <input 
-                    type='text' 
-                    name='searchbar' 
-                    className='searchbar' 
-                    value={this.state.searchingKey} 
-                    onChange={this.updateInput} 
-                    onKeyPress={this.searchSomeThing}/>
+            <input
+                placeholder="Search user ..."
+                type='text'
+                name='searchbar'
+                className='searchbar'
+                value={this.state.searchingKey}
+                onChange={this.updateInput}
+                onKeyPress={this.searchSomeThing}/>
         )
     }
 }

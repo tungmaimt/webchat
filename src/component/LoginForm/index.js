@@ -87,7 +87,7 @@ class LoginForm extends Component {
             <div className="loginForm">
             <Modal isOpen='true' title="Login">
                 <input name='username' onChange={this.updateInput} value={this.state.username} placeholder="Input username ..."></input>
-                <input name='password' onChange={this.updateInput} value={this.state.password} placeholder="Input password ..."></input>
+                <input name='password' onChange={this.updateInput} value={this.state.password} type="password" placeholder="Input password ..."></input>
                 <button className="primary" type='button' onClick={this.login}>Login</button>
                 <button className="danger" type='button' onClick={this.goSignUp}>Go to sign up</button>
                 <div>{this.state.notifyMess}</div>
