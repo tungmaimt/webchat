@@ -5,7 +5,7 @@ import './Modal.css'
 class Modal extends Component {
 
   render() {
-    const { isOpen, close, children, title } = this.props
+    const { isOpen, children, title } = this.props
 
     return (
       <div className={`modal ${isOpen? 'fade-in' : 'fade-out'}`}>

@@ -27,10 +27,7 @@ class InputMessage extends Component {
     }
 
     componentDidMount() {
-        console.log(this.btnPlane);
-        this.btnPlane.addEventListener('onclick', () => {
-            console.log('kekekek');
-        })
+        this.btnPlane.addEventListener('click', this.sendFriendMessage)
     }
 
     componentWillUnmount() {
@@ -39,6 +36,7 @@ class InputMessage extends Component {
                 chatObj: messageStore.getChatObj()
             })
         })
+        this.btnPlane.removeEventListener('click', this.sendFriendMessage)
     }
 
     updateInput(event) {
@@ -58,7 +56,6 @@ class InputMessage extends Component {
         let key = event.keyCode;
         if (key === 13) {
             this.sendFriendMessage();
-            // messageAction.moveScroll('bottom');
         }
     }
 

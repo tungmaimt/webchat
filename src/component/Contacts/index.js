@@ -39,6 +39,10 @@ class Contacts extends Component {
         });
     }
 
+    componentDidMount() {
+        
+    }
+
     componentWillUnmount() {
         // userStore.removerLoadUserInfoListener(() => {
         //     this.setState({
@@ -76,38 +80,31 @@ class Contacts extends Component {
     render() {
         const listItem = this.state.friends.map((item, index) => {
             return (
-                <li key={item.id} id={index} ma={item.id} onClick={this.chooseItem}>
-                    {item.info.name}
-                    
-                </li>
+                <Contact key={index} username={item.info.name} online={true} ma={item.id}/>
             )
         });
 
         return (
-<<<<<<< HEAD
             <ul>
-                {this.state.friends.map((item, index) => {
+                {/* {this.state.friends.map((item, index) => {
                     return (<li key={item.id} id={index} ma={item.id} onClick={this.chooseItem}>{item.info.name}</li>)
-                })}
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-=======
-            <ul>Contacts
+                })} */}
                 {listItem}
->>>>>>> 0ffc5700652860f108601a50a99ff8c44524178d
+                {/* <Contact username="huong" online={true} />
+                <Contact username="huong" online={true} />
+                <Contact username="huong" online={true} />
+                <Contact username="huong" online={true} />
+                <Contact username="huong" online={true} />
+                <Contact username="huong" online={true} />
+                <Contact username="huong" online={true} /> */}
             </ul>
         )
     }
 }
 
-const Contact = ({ username, online }) => {
+const Contact = ({ username, online, ma }) => {
     return (
-        <li className="contact-item">
+        <li className="contact-item" ma={ma}>
             <img className="ava" src="/static/media/default_ava.cf22e533.jpg" alt="ava"/>
             <div className="contact-content">
                 <div className="username">{username}</div>
