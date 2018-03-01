@@ -5,7 +5,7 @@ import ActionTypes from '../constants';
 const CHANGE_CHATOBJ = 'CHANGE_CHATOBJ';
 const CHANGE_CHATMESS = 'CHANGE_CHATMESS';
 const MOVE_SCROLL = 'MOVE_SCROLL';
-let chatObj = '';
+let chatObj = {};
 let chatMess = [];
 let scroll = '';
 

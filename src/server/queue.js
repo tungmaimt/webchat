@@ -1,6 +1,8 @@
 const rsq = require('rsq');
 
-const REDIS_CONNECT_URL = process.env.REDIS_CONNECT_URL
+const REDIS_CONNECT_URL = process.env.REDIS_CONNECT_URL;
+console.log({REDIS_CONNECT_URL});
+
 
 const queue = new rsq(
     'wc',
@@ -87,8 +89,6 @@ const registerQueue = (socket) => {
                 console.log(err);
                 return done();
             }
-
-            console.log('qu');
 
             mongodb.getFriendsInfo(result.friends, (err, result2) => {
                 if (err) {
