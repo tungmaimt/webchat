@@ -74,11 +74,18 @@ class Contacts extends Component {
     }
 
     render() {
+        const listItem = this.state.friends.map((item, index) => {
+            return (
+                <li key={item.id} id={index} ma={item.id} onClick={this.chooseItem}>
+                    {item.info.name}
+                    
+                </li>
+            )
+        });
+
         return (
             <ul>Contacts
-                {this.state.friends.map((item, index) => {
-                    return (<li key={item.id} id={index} ma={item.id} onClick={this.chooseItem}>{item.info.name}</li>)
-                })}
+                {listItem}
             </ul>
         )
     }

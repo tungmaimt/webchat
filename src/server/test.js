@@ -38,17 +38,19 @@ const mongodb = require('./mongodb');
 //     })
 // })
 
+
+// add friend test
 // const payload = {};
 
-// mongoClient.connect(url, (err, client) => {
-//     let db = client.db(dbName);
+// mongoClient.connect('mongodb://localhost:27017', (err, client) => {
+//     let db = client.db('webchat');
 //     db.collection('users').find({}).toArray((err, docs) => {
 //         console.log(docs);
-//         payload.id = docs[2]._id;
-//         payload.friend_id = docs[3]._id;
+//         payload.id = docs[0]._id;
+//         payload.friend_id = docs[1]._id;
 //         console.log(payload);
 //         client.close();
-//         let result = addFriend(payload) || 'eeee';
+//         let result = mognodb.addFriend(payload) || 'eeee';
 //         console.log(result);
 //     })
 // })

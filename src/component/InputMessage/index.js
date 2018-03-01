@@ -14,6 +14,7 @@ class InputMessage extends Component {
         }
 
         this.sendFriendMessage = this.sendFriendMessage.bind(this);
+        this.pressFriendMessage = this.pressFriendMessage.bind(this);
         this.updateInput = this.updateInput.bind(this);
     }
 
@@ -23,6 +24,13 @@ class InputMessage extends Component {
                 chatObj: messageStore.getChatObj()
             });
         });
+    }
+
+    componentDidMount() {
+        console.log(this.btnPlane);
+        this.btnPlane.addEventListener('onclick', () => {
+            console.log('kekekek');
+        })
     }
 
     componentWillUnmount() {
@@ -42,26 +50,31 @@ class InputMessage extends Component {
 
     moveScroll() {
         let chatContent = document.getElementsByClassName('chat-content');
-        if (chatContent[0].scrollTop) chatContent[0].scrollTop = chatContent[0].scrollHeight;
+        chatContent[0].scrollTop = chatContent[0].scrollHeight;
     }
 
-    sendFriendMessage(event) {
-        let key = event.charCode;
+    pressFriendMessage(event) {
+        console.log(event.keyCode);
+        let key = event.keyCode;
         if (key === 13) {
-            let payload = {
-                friendId: this.state.chatObj.id,
-                message: this.state.inputMessage
-            }
-            messageAction.sendFriendMessage(payload, () => {
-                console.log(payload);
-            });
-
-            this.setState({
-                inputMessage: ''
-            });
-            this.moveScroll();
+            this.sendFriendMessage();
             // messageAction.moveScroll('bottom');
         }
+    }
+
+    sendFriendMessage() {
+        let payload = {
+            friendId: this.state.chatObj.id,
+            message: this.state.inputMessage
+        }
+        messageAction.sendFriendMessage(payload, () => {
+            console.log(payload);
+        });
+
+        this.setState({
+            inputMessage: ''
+        });
+        this.moveScroll();
     }
 
     render() {
@@ -71,13 +84,15 @@ class InputMessage extends Component {
                     onChange={this.updateInput}
                     value={this.state.inputMessage}
                     type='text'
-                    onKeyPress={this.sendFriendMessage}
+                    onKeyUp={this.pressFriendMessage}
                 ></textarea>
 
                 <div className="btn">
                     <i className="far fa-smile"></i>
                 </div>
-                <div className="btn">
+                <div className="btn" 
+                    ref={(some) => {this.btnPlane = some}}
+                >
                     <i className="fab fa-telegram-plane"></i>
                 </div>
             </div>
