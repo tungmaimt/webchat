@@ -80,7 +80,7 @@ class ChatWindow extends Component {
 
     moveScroll() {
         let chatContent = document.getElementsByClassName('chat-content');
-        if (chatContent[0].scrollTop) chatContent[0].scrollTop = chatContent[0].scrollHeight;
+        chatContent[0].scrollTop = chatContent[0].scrollHeight;
     }
 
     render() {
@@ -96,7 +96,7 @@ class ChatWindow extends Component {
                     <i className="fas fa-cog setting-icon"></i>
                 </div>
             </div>
-            <div className="chat-co ntent">
+            <div className="chat-content">
                 <ul>
                     {listMessage}
                 </ul>
