@@ -357,7 +357,6 @@ class SomeMongo {
         message.receivers = [];
         message.receivers.push({ id: payload.friend_id, seen: false });
         message.created_date = Date.now();
-        console.log(message);
             
         connectDb((client, db) => {
             db.collection('messages').insertOne(message, (err, result) => {
@@ -379,7 +378,6 @@ class SomeMongo {
         message.group = groupFriend[0] + groupFriend[1];
         message.from = parseInt(payload.from);
         message.to = parseInt(payload.to);
-        console.log(message);
     
         connectDb((client, db) => {
             db.collection('messages').find({ 

@@ -1,5 +1,5 @@
 .chat-window {
-    flex-grow: 1;
+    flex-grow: auto;
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid #999;
@@ -54,6 +54,7 @@
     font-size: 14px;
     background: #e0e0e0;
     margin-right: 100px;
+    width: 500px;
 }
 
 .chat-window .message-box.own .message {
@@ -65,8 +66,10 @@
 }
 
 .chat-window .message-box {
+    
     position: relative;
     display: flex;
+    word-wrap: break-word;
 }
 
 .chat-window .ava {

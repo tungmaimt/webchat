@@ -27,7 +27,9 @@ class InputMessage extends Component {
     }
 
     componentDidMount() {
-        this.btnPlane.addEventListener('click', this.sendFriendMessage)
+        this.btnPlane.addEventListener('click', () => {
+            this.sendFriendMessage();
+        })
     }
 
     componentWillUnmount() {
@@ -36,7 +38,9 @@ class InputMessage extends Component {
                 chatObj: messageStore.getChatObj()
             })
         })
-        this.btnPlane.removeEventListener('click', this.sendFriendMessage)
+        this.btnPlane.removeEventListener('click', () => {
+            this.sendFriendMessage();
+        })
     }
 
     updateInput(event) {
@@ -56,27 +60,30 @@ class InputMessage extends Component {
     }
 
     pressFriendMessage(event) {
-        console.log(event.keyCode);
         let key = event.keyCode;
         if (key === 13) {
-            this.sendFriendMessage();
+            let mes = this.state.inputMessage.substring(0, this.state.inputMessage.length - 1);
+            this.sendFriendMessage(mes);
         }
     }
 
-    sendFriendMessage() {
-        let mes = this.state.inputMessage.substring(0, this.state.inputMessage.length - 1);
-        if (mes === '') {
-            return this.setState({
-                inputMessage: ''
-            })
+    sendFriendMessage(mess) {
+        let mes = '';
+        if (mess) {
+            mes = mess;
+        } else {
+            mes = this.state.inputMessage;
         }
-        let payload = {
-            friendId: this.state.chatObj.id,
-            message: mes
-        }
-        messageAction.sendFriendMessage(payload, () => {
-            console.log(payload);
-        });
+
+        if (mes !== '') {
+            let payload = {
+                friendId: this.state.chatObj.id,
+                message: mes
+            };
+            messageAction.sendFriendMessage(payload, () => {
+                // console.log(payload);
+            });
+        } 
 
         this.setState({
             inputMessage: ''

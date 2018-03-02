@@ -121,7 +121,7 @@ class ChatWindow extends Component {
 const Message = ({ own, active, message, date }) => {
     return (
         <div className={`message-box ${own? 'own' : ''} ${active? 'active' : ''}`}>
-            <img className="ava" src="/static/media/default_ava.cf22e533.jpg"/>
+            <img className="ava" src="/static/media/default_ava.cf22e533.jpg" alt=""/>
             <div className="message">{message}</div>
             <div className="info">{date}</div>
         </div>
