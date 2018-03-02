@@ -9,9 +9,9 @@ class SignUpForm extends Component {
         super();
 
         this.state = {
-            username: 'caigi',
-            password: 'caigi',
-            re_password: 'caigi',
+            username: '',
+            password: '',
+            re_password: '',
             notifyMess: ''
         };
 

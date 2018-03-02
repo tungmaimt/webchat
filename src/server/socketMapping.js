@@ -18,7 +18,6 @@ const unMapSocketId = (socketId) => {
 const updateSocketUserId = (socketId, userId) => {
     map.forEach((element) => {
         if (JSON.stringify(element.socketId) === JSON.stringify(socketId)) {
-            console.log('dc');
             element.userId = userId;
         }
     })

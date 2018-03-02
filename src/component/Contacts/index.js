@@ -70,10 +70,11 @@ class Contacts extends Component {
         let payload = {
             friendId: ma
         }
-        console.log(ma);
         messageAction.changeChatObj(this.state.friends[id]);
         messageAction.getFriendMessage(payload, (response) => {
-            console.log(response);
+            if (response.res !== 'ok') {
+                console.log(response);
+            }
         })
     }
 

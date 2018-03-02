@@ -15,7 +15,6 @@ if (!fs.existsSync(path.join(__dirname, '../../.env.local'))){
     dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 }
 
-
 const router = require('./routes/router');
 const { mapSocketId, unMapSocketId, socketMap } = require('./socketMapping');
 const veryfyToken = require('./verifyToken');

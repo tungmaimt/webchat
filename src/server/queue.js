@@ -157,7 +157,7 @@ const registerQueue = (socket) => {
                         });
                     }
                 })
-                return done();
+                done();
             })
         }
     )

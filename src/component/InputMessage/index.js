@@ -28,7 +28,7 @@ class InputMessage extends Component {
 
     componentDidMount() {
         this.btnPlane.addEventListener('click', () => {
-            this.sendFriendMessage();
+            this.sendFriendMessage(this.state.inputMessage);
         })
     }
 
@@ -39,7 +39,7 @@ class InputMessage extends Component {
             })
         })
         this.btnPlane.removeEventListener('click', () => {
-            this.sendFriendMessage();
+            this.sendFriendMessage(this.state.inputMessage);
         })
     }
 
@@ -68,11 +68,9 @@ class InputMessage extends Component {
     }
 
     sendFriendMessage(mess) {
-        let mes = '';
+        let mes = mess;
         if (mess) {
             mes = mess;
-        } else {
-            mes = this.state.inputMessage;
         }
 
         if (mes !== '') {

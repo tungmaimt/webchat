@@ -4,10 +4,8 @@ import ActionTypes from '../constants';
 
 const CHANGE_CHATOBJ = 'CHANGE_CHATOBJ';
 const CHANGE_CHATMESS = 'CHANGE_CHATMESS';
-const MOVE_SCROLL = 'MOVE_SCROLL';
 let chatObj = {};
 let chatMess = [];
-let scroll = '';
 
 class MessageStore extends EventEmitter {
     constructor() {
@@ -29,10 +27,6 @@ class MessageStore extends EventEmitter {
             break;
             default:
         }
-    }
-
-    moveScroll(payload) {
-        scroll = payload;
     }
 
     changeChatMess(payload) {

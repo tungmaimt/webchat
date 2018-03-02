@@ -51,6 +51,12 @@ class LoginForm extends Component {
             if (result.success) {
                 loginAction.changeLoginState(true);
                 localStorage.save(result.token, result._id);
+                userAction.getInfo(localStorage.get_Id(), (err, response) => {
+                    if (err) {
+                        if (err.name === 'JsonWebTokenError')
+                            console.log('JsonWebTokenError');
+                    }
+                })
             } else {
                 this.notify('username or password are incorrect');
             }
