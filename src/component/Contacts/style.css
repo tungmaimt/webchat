@@ -6,12 +6,21 @@ ul li {
     cursor: pointer;
 }
 
+.hide {
+    display: none;
+}
+
 .contact-item {
     user-select: none;
     display: flex;
     color: #eee;
     padding: 10px;
     line-height: 35px;
+}
+
+.contact-item .contact-view {
+    display: flex;
+    flex: auto;
 }
 
 .contact-item .contact-content {
@@ -41,4 +50,12 @@ ul li {
 
 .contact-item .dot.active {
     color: #4CAF50;
+}
+
+.contact-item .dot.deactive {
+    color: #dddddd;
+}
+
+.contact-item .option:hover {
+    color: aqua;
 }

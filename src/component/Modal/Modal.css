@@ -45,24 +45,24 @@
 
 /* animates */
 
-.modal .fade-in {
+.fade-in {
   opacity: 1;
   pointer-events: auto;
   transition: opacity .3s ease-in-out;
 }
 
-.modal .fade-in .modal-dialog {
+.fade-in .modal-dialog {
   transition: transform .3s ease-in-out;
   transform: translateY(0);
 }
 
-.modal .fade-out {
+.fade-out {
   opacity: 0;
   pointer-events: none;
   transition: opacity .3s ease-in-out;
 }
 
-.modal .fade-out .modal-dialog {
+.fade-out .modal-dialog {
   transition: transform .3s ease-in-out;
   transform: translateY(-100px);
 }

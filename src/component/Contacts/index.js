@@ -11,32 +11,36 @@ class Contacts extends Component {
         super();
 
         this.state = {
-            friends: []
+            friends: [],
+            searchResult: []
         }
 
         this.chooseItem = this.chooseItem.bind(this);
     }
 
-    componentWillMount() {
-        // userStore.addLoadUserInfoListener(() => {
-        //     this.setState({
-        //         friends: userStore.getUserInfo().friends
-        //     })
-        // });
+    handleResponse(result) {
+        if (!result.success) {
+            console.log(result);
+            return console.log('cant get friend info');
+        }
+        userAction.loadFriendInfo(result.result);
+    }
 
+    componentWillMount() {
         userStore.addLoadFriendInfoListener(() => {
             this.setState({
                 friends: userStore.getFriendInfo()
             })
-        })
-
-        registerHandleResponse('loadFriendsInfo', (result) => {
-            if (!result.success) {
-                console.log(result);
-                return console.log('cant get friend info');
-            }
-            userAction.loadFriendInfo(result.result);
         });
+
+        userStore.addLoadSearchResultListener(() => {
+            this.setState({
+                searchResult: userStore.getSearchResult()
+            });
+            console.log(userStore.getSearchResult());
+        });
+
+        registerHandleResponse('loadFriendsInfo', this.handleResponse);
     }
 
     componentDidMount() {
@@ -44,26 +48,19 @@ class Contacts extends Component {
     }
 
     componentWillUnmount() {
-        // userStore.removerLoadUserInfoListener(() => {
-        //     this.setState({
-        //         friends: userStore.getUserInfo().friends
-        //     })
-        // });
-
         userStore.removerLoadFriendInfoListener(() => {
             this.setState({
                 friends: userStore.getFriendInfo()
             })
-        })
-
-        removeHandleResponse('loadFriendsInfo', (result) => {
-            if (!result.success) {
-                console.log(result);
-                return console.log('cant get friend info');
-            }
-            console.log(result);
-            userAction.loadFriendInfo(result.result);
         });
+
+        userStore.addLoadSearchResultListener(() => {
+            this.setState({
+                searchResult: userStore.getSearchResult()
+            })
+        });
+
+        removeHandleResponse('loadFriendsInfo', this.handleResponse);
     }
 
     chooseItem(ma, id) {
@@ -78,10 +75,32 @@ class Contacts extends Component {
         })
     }
 
+    viewInfo(ma, id) {
+        console.log('gpgp');
+    }
+
     render() {
-        const listItem = this.state.friends.map((item, index) => {
+        const listItem = !userStore.getSearchMode() ? this.state.friends.map((item, index) => {
             return (
-                <Contact key={index} id={index} username={item.info.name} online={true} ma={item.id} onClick={this.chooseItem}/>
+                <Contact key={index} 
+                    id={index} 
+                    username={item.info.name} 
+                    online={true} 
+                    ma={item.id} 
+                    onClick={this.chooseItem}
+                    viewInfo={this.viewInfo}
+                />
+            )
+        }) : this.state.searchResult.map((item, index) => {
+            return (
+                <Contact key={index}
+                    id={index}
+                    username={item.info.name}
+                    online={false}
+                    ma={item.id}
+                    onClick={this.viewInfo}
+                    viewInfo={false}
+                />
             )
         });
 
@@ -103,16 +122,21 @@ class Contacts extends Component {
     }
 }
 
-const Contact = ({ username, online, ma, onClick, id }) => {
+const Contact = ({ username, online, ma, onClick, id, viewInfo }) => {
     return (
-        <li className="contact-item" ma={ma} onClick={() => {onClick(ma, id)}}>
-            <img className="ava" src="/static/media/default_ava.cf22e533.jpg" alt="ava"/>
-            <div className="contact-content">
-                <div className="username">{username}</div>
-                <div className="contact-message">recent message</div>
+        <li className="contact-item" ma={ma} >
+            <div className="contact-view" onClick={() => {onClick(ma, id)}}>
+                <img className="ava" src="/static/media/default_ava.cf22e533.jpg" alt="ava"/>
+                <div className="contact-content">
+                    <div className="username">{username}</div>
+                    <div className="contact-message">recent message</div>
+                </div>
+                <div className={online ? "dot active" : "dot deactive"}>
+                    <i className="fas fa-circle"></i>
+                </div>
             </div>
-            <div className="dot active">
-                <i className="fas fa-circle"></i>
+            <div className={viewInfo ? "option" : "hide"} onClick={() => {viewInfo ? viewInfo(ma, id) : {}}}>
+                 <i className="fas fa-ellipsis-v"></i>
             </div>
         </li>
     )

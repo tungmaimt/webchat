@@ -3,6 +3,7 @@ import './App.css';
 import Asidebar from './Asidebar';
 import Main from './Main';
 import LoginModal from './LoginModal';
+import SideInfo from './SideInfo';
 
 
 class App extends Component {
@@ -12,6 +13,7 @@ class App extends Component {
       <div className="flex">
         <Asidebar />
         <Main />
+        <SideInfo />
         <LoginModal />
       </div>
     );

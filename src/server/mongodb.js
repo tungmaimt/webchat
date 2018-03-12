@@ -228,18 +228,21 @@ class SomeMongo {
         })
     }
     
-    searchUserInfo(filter, callback) {
+    searchUser(filter, callback) {
         connectDb((client, db) => {
             db.collection('users_info').find({
-                info: { name: { $regex: '/.*' + filter + '.*/' } }
-            }).toArray((err, docs) => {
+                'info.name': { $regex: '.*' + filter + '.*', $options: 'i' } 
+            }, { projection: {
+                id: 1,
+                'info.name': 1
+            } }).toArray((err, docs) => {
                 if (err) {
                     console.log(err);
                     client.close();
                     return callback(err);
                 }
                 client.close();
-                callback(null, docs[0]);
+                callback(null, docs);
             });
         });
     }

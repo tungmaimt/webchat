@@ -4,9 +4,12 @@ import ActionTypes from '../constants';
 
 const LOAD_USER_INFO = 'UPDATE_USER_INFO';
 const LOAD_FRIEND_INFO = 'LOAD_FRIEND_INFO';
+const LOAD_SEARCH_RESULT = 'LOAD_SEARCH_RESULT';
 
 let userInfo = {};
 let friendsInfo = [];
+let searchResult = [];
+let searchMode = false;
 
 class UserStore extends EventEmitter {
     constructor() {
@@ -23,6 +26,9 @@ class UserStore extends EventEmitter {
             case ActionTypes.LOAD_FRIEND_INFO:
                 this.loadFriendInfo(action.payload);
             break;
+            case ActionTypes.LOAD_SEARCH_RESULT:
+                this.loadSearchResult(action.payload);
+            break;
             default: 
         }
     }
@@ -37,12 +43,26 @@ class UserStore extends EventEmitter {
         this.emit(LOAD_USER_INFO);
     }
 
+    loadSearchResult(payload) {
+        searchResult = payload.searchResult;
+        searchMode = payload.searchMode;
+        this.emit(LOAD_SEARCH_RESULT);
+    }
+
     getUserInfo() {
         return userInfo;
     }
 
     getFriendInfo() {
         return friendsInfo;
+    }
+
+    getSearchResult() {
+        return searchResult;
+    }
+
+    getSearchMode() {
+        return searchMode;
     }
 
     addLoadFriendInfoListener(callback) {
@@ -59,6 +79,14 @@ class UserStore extends EventEmitter {
 
     removerLoadUserInfoListener(callback) {
         this.removeListener(LOAD_USER_INFO, callback);
+    }
+
+    addLoadSearchResultListener(callback) {
+        this.on(LOAD_SEARCH_RESULT, callback);
+    }
+
+    removerLoadSearchResultListener(callback) {
+        this.removeListener(LOAD_SEARCH_RESULT, callback);
     }
 }
 

@@ -1,0 +1,12 @@
+.sideInfo {
+    width: 270px;
+    height: 100vh;
+    background-color: aquamarine;
+    padding: 0 35px;
+}
+
+.sideInfo .side-ava img{
+    width: 200px;
+    height: 200px;
+    border-radius: 5%;
+}

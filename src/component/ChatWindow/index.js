@@ -3,6 +3,8 @@ import './style.css';
 import messageStore from '../../stores/messageStore';
 import { registerHandleResponse, removeHandleResponse, localStorage } from '../../something';
 import messageAction from '../../actions/messageAction';
+import Modal from '../Modal';
+import adjustStore from '../../stores/adjustStore';
 
 let smooth = true;
 
@@ -13,7 +15,8 @@ class ChatWindow extends Component {
 
         this.state = {
             chatMess: [],
-            title: ''
+            title: '',
+            showSetting: false
         }
     }
 
@@ -30,6 +33,12 @@ class ChatWindow extends Component {
             this.setState({
                 title: messageStore.getChatObj().info.name
             })
+        });
+
+        adjustStore.addChangeShowSettingListener(() => {
+            this.setState({
+                showSetting: adjustStore.getIsShowSetting()
+            });
         })
 
         registerHandleResponse('directMessage', (result) => {
@@ -67,6 +76,12 @@ class ChatWindow extends Component {
             this.setState({
                 title: messageStore.getChatObj().info.name
             })
+        });
+
+        adjustStore.removeChangeShowSettingListener(() => {
+            this.setState({
+                showSetting: adjustStore.getIsShowSetting()
+            });
         })
 
         removeHandleResponse('directMessage', (result) => {
@@ -104,7 +119,9 @@ class ChatWindow extends Component {
             <div className="chat-window">
             <div className="top">
                 <div className="title">{this.state.title || 'Title'}</div>
-                <div className="btn">
+                <div className="btn" onClick={() => {
+                    this.setState({ showSetting: true });
+                }}>
                     <i className="fas fa-cog setting-icon"></i>
                 </div>
             </div>
@@ -113,6 +130,9 @@ class ChatWindow extends Component {
                     { listMessage }
                 </ul>
             </div>
+            <Modal isOpen={this.state.showSetting} title={this.state.title + ' setting'}>
+                <div>some</div>
+            </Modal>
             </div>
         );
     }

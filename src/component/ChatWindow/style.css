@@ -1,5 +1,5 @@
 .chat-window {
-    flex-grow: auto;
+    /* flex-grow: auto; */
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid #999;
@@ -39,6 +39,14 @@
     font-size: 20px;
     overflow: auto;
     padding-bottom: 20px;
+}
+
+.chat-window .chat-content::-webkit-scrollbar {
+    width: 7px;
+}
+  
+.chat-window .chat-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.12);
 }
 
 .chat-window ul {

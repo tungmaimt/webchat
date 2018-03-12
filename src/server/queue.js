@@ -27,6 +27,7 @@ const TYPE = {
     GET_USER_INFO: 'getUserInfo',
     SAVE_FRIEND_MESSAGE: 'saveMessage',
     GET_FRIEND_MESSAGE: 'getMessage',
+    SEARCH: 'search'
 };
 
 queue.newTopic(TOPIC.USER_ACTION).newStream(STREAM);
@@ -159,6 +160,30 @@ const registerQueue = (socket) => {
                 })
                 done();
             })
+        }
+    );
+
+    queue.registHandle(
+        [ { topic: TOPIC.USER_ACTION, stream: STREAM, type: TYPE.SEARCH } ],
+        (message, done) => {
+            mongodb.searchUser(message.data.payload.key, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return done();
+                }
+                socketMap.forEach((element, index) => {
+                    if (JSON.stringify(message.data.payload.id) === JSON.stringify(element.userId)) {
+                        socket(element.socketId, 'response', {
+                            response: 'search',
+                            result: {
+                                success: true,
+                                result: result
+                            }
+                        });
+                    }
+                })
+                done();
+            });
         }
     )
 };

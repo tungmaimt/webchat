@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import './style.css';
+import userAction from '../../actions/userAction';
+import { registerHandleResponse, removeHandleResponse } from '../../something';
 
 class Searchbar extends Component {
 
@@ -11,14 +13,41 @@ class Searchbar extends Component {
         }
 
         this.updateInput = this.updateInput.bind(this);
+        this.searchSomeThing = this.searchSomeThing.bind(this);
+    }
+
+    handleResponse(result) {
+        if (!result.success) {
+            console.log(result);
+            return console.log('errrrrrrr');
+        }
+        userAction.loadSearchResult({
+            searchMode: true,
+            searchResult: result.result
+        });
+    }
+
+    componentWillMount() {
+        registerHandleResponse('search', this.handleResponse);
+    }
+
+    componentWillUnmount() {
+        removeHandleResponse('search', this.handleResponse);
     }
 
     searchSomeThing(event) {
-        // if (event.charCode === 13) {
-        //     console.log(this.state.searchingKey);
-        //     userAction.search(this.state.searchingKey);
-        // }
-
+        if (this.state.searchingKey === '') {
+            userAction.loadSearchResult({
+                searchMode: false,
+                searchResult: []
+            });
+            return;
+        }
+        event.preventDefault();
+        userAction.search(this.state.searchingKey, (err, response) => {
+            if (err) console.log(err);
+            console.log(response);
+        })
     }
 
     updateInput(event) {
@@ -36,7 +65,7 @@ class Searchbar extends Component {
                 className='searchbar'
                 value={this.state.searchingKey}
                 onChange={this.updateInput}
-                onKeyPress={this.searchSomeThing}/>
+                onKeyUp={this.searchSomeThing}/>
         )
     }
 }

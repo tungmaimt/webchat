@@ -135,3 +135,21 @@ const mongodb = require('./mongodb');
 //         });
 //     })
 // })
+
+// mongodb.searchUser('mai', (err, result) => {
+//     if (err) return console.log(err);
+//     console.log(result);
+// })
+
+// mongoClient.connect(url, (err, client) => {
+//     let db = client.db(dbName);
+//     let rg = '^c';
+//     db.collection('users_info').find({ 'info.name': { $regex: rg } }).toArray((err, docs) => {
+//         if (err) {
+//             console.log(err);
+//             return client.close();
+//         }
+//         console.log(docs);
+//         client.close();
+//     })
+// })

@@ -20,6 +20,25 @@ router.get('/', (req, res) => {
     });
 });
 
+router.get('/search/:key', (req, res) => {
+    let payload = {
+        id: req.headers['_id'],
+        key: req.params.key
+    };
+    queue.push({
+        topic: queue.TOPIC.USER_ACTION,
+        stream: queue.STREAM,
+        type: queue.TYPE.SEARCH,
+        data: { payload: payload }
+    }, (err) => {
+        if (err) {
+            console.log(err);
+            return res.json({ err });
+        }
+        res.json({ res: 'ok' });
+    })
+})
+
 router.post('/', (req, res) => {
     let payload = {
         username: req.body.username,
