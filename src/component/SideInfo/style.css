@@ -1,3 +1,7 @@
+.hide {
+    display: none;
+}
+
 .sideInfo {
     width: 270px;
     height: 100vh;

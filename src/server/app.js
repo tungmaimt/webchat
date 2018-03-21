@@ -50,13 +50,13 @@ scServer.on('connection', (socket) => {
         });
         let payload = {
             id: data.id,
-            friend_id: data.friend_id,
+            room: data.room,
             contents: data.message
         }
         queue.push({
             topic: queue.TOPIC.message,
             stream: queue.STREAM,
-            type: queue.TYPE.SAVE_FRIEND_MESSAGE,
+            type: queue.TYPE.SAVE_MESSAGE,
             data: { payload }
         }, (err) => {
             if (err) console.log(err);

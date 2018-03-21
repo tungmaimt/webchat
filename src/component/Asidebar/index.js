@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import './style.css';
 import Userinfo from '../Userinfo';
-import Contacts from '../Contacts';
-import Searchbar from '../Searchbar';
+import TabSwitch from '../TabSwitch';
 import userAction from '../../actions/userAction';
 import loginAction from '../../actions/loginAction';
 import loginStore from '../../stores/loginStore';
@@ -66,8 +65,7 @@ class Asidebar extends Component {
         return (
             <div className="asidebar">
                 <Userinfo />
-                <Searchbar />
-                <Contacts />
+                <TabSwitch />
             </div>
         );
     }

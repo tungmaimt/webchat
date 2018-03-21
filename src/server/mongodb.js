@@ -113,75 +113,96 @@ class SomeMongo {
     }
     
     addFriend(payload, callback) {
-        let done = false;
-        let out = 0;
+        let id = new ObjectID(payload.id);
+        let friendId = new ObjectID(payload.friendId);
+        let members = [id, friendId];
+        members.sort();
+        let add = (roomId, db, client, callback) => {
+            db.collection('users_info').find({ id: id }, { projection: {
+                created_date: 0,
+                info: 0
+            }}).toArray((err, docs) => {
+                if (err) {
+                    console.log(err);
+                    client.close();
+                    return callback(err);
+                }
+                docs[0].friends.push({ id: friendId, tag: '', track: -1, room: { id: roomId, track: -1 }});
+    
+                db.collection('users_info').updateOne({ _id: docs[0]._id }, {
+                    $set: {
+                        friends: docs[0].friends
+                    }
+                }, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        client.close();
+                        return callback(err);
+                    }
+
+                    db.collection('users_info').find({ id: friendId }, { projection: {
+                        created_date: 0,
+                        info: 0
+                    }}).toArray((err, docs) => {
+                        if (err) {
+                            console.log(err);
+                            client.close();
+                            return callback(err);
+                        }
+                        docs[0].friends.push({ id: id, tag: '', track: -2, room: roomId });
+            
+                        db.collection('users_info').updateOne({ _id: docs[0]._id }, {
+                            $set: {
+                                friends: docs[0].friends
+                            }
+                        }, (err, result) => {
+                            if (err) {
+                                console.log(err);
+                                client.close();
+                                return callback(err);
+                            }
+                            db.collection('users_info').find(
+                                { $or: [ { id: id }, { id: friendId } ]  }
+                            ).toArray((err, docs) => {
+                                client.close();
+                                return callback(null, docs)
+                            });
+                        });
+                    });
+                });
+            });
+        }
     
         connectDb((client, db) => {
-            db.collection('users_info').find({ id: payload.id }, { projection: {
-                created_date: 0,
-                info: 0
-            }}).toArray((err, docs) => {
-                if (err) {
-                    console.log(err);
-                    client.close();
-                    return callback(err);
+
+            db.collection('rooms').find({ 
+                members: [ { id: members[0], track: -1 }, { id: members[1], track: -1 } ] 
+            }).toArray((err, docs) => {
+                console.log('wwww', docs);
+                // client.close();
+                // callback('ggg')
+                if (docs.length !== 0) {
+                    add(docs[0]._id, db, client, callback);
+                } else {
+                    let room = {
+                        name: '',
+                        members: [ { id: members[0], track: -1 }, { id: members[1], track: -1 } ],
+                        created_date: Date.now()
+                    }
+                    console.log(room);
+                    db.collection('rooms').insertOne(room, (err, result) => {
+                        if (err) {
+                            console.log(err);
+                            client.close();
+                            return callback(err);
+                        }
+        
+                        let roomId = result.ops[0]._id;
+                        add(roomId, db, client, callback);
+                    });
                 }
-                docs[0].friends.push({ id: payload.friend_id, tag: '' });
-    
-                db.collection('users_info').updateOne({ _id: docs[0]._id }, {
-                    $set: {
-                        friends: docs[0].friends
-                    }
-                }, (err, result) => {
-                    if (err) {
-                        console.log(err);
-                        client.close();
-                        return callback(err);
-                    }
-                    if (done) {
-                        out++;
-                        client.close();
-                        callback(null, out);
-                    } else {
-                        done = true;
-                        out++;
-                    }
-                });
-    
-            });
-    
-            db.collection('users_info').find({ id: payload.friend_id }, { projection: {
-                created_date: 0,
-                info: 0
-            }}).toArray((err, docs) => {
-                if (err) {
-                    console.log(err);
-                    client.close();
-                    return callback(err);
-                }
-                docs[0].friends.push({ id: payload.id, tag: '' });
-    
-                db.collection('users_info').updateOne({ _id: docs[0]._id }, {
-                    $set: {
-                        friends: docs[0].friends
-                    }
-                }, (err, result) => {
-                    if (err) {
-                        console.log(err);
-                        client.close();
-                        return callback(err);
-                    }
-                    if (done) {
-                        out++;
-                        client.close();
-                        callback(null, out);
-                    } else {
-                        done = true;
-                        out++;
-                    }
-                });
-            });
-    
+            })
+            
         })
     }
     
@@ -205,7 +226,8 @@ class SomeMongo {
         let check = 0;
         let done = () => {
             connectDb((client, db) => {
-                db.collection('users_info').find({ $or: friends }).toArray((err, docs) => {
+                db.collection('users_info').find({ $or: friends },
+                { projection: { id: 1, 'info.name': 1, 'info.ava': 1 } }).toArray((err, docs) => {
                     if (err) {
                         console.log(err);
                         client.close();
@@ -234,7 +256,8 @@ class SomeMongo {
                 'info.name': { $regex: '.*' + filter + '.*', $options: 'i' } 
             }, { projection: {
                 id: 1,
-                'info.name': 1
+                'info.name': 1,
+                'info.ava': 1
             } }).toArray((err, docs) => {
                 if (err) {
                     console.log(err);
@@ -248,28 +271,29 @@ class SomeMongo {
     }
     
     removeFriend(payload, callback) {
-        let done = false;
-        let out = 0;
+        let id = new ObjectID(payload.id);
+        let friendId = new ObjectID(payload.friendId);
     
         connectDb((client, db) => {
             db.collection('users_info').find({ $or: [
-                { id: payload.id },
-                { id: payload.friend_id }
+                { id: id },
+                { id: friendId }
             ]}).toArray((err, docs) => {
                 if (err) {
                     console.log(err);
                     client.close();
                     return callback(err);
                 }
-                if (docs[0].friends.length === 0 || docs[1].friends.length === 0) {
-                    client.close();
-                    return callback(null, 'nothing to do')
+                if (docs.length >= 2) {
+                    if (docs[0].friends.length === 0 || docs[1].friends.length === 0) {
+                        client.close();
+                        return callback(null, 'nothing to do')
+                    }
                 }
-    
-                console.log(docs);
+
                 docs[0].friends.forEach((element, index) => {
-                    if (JSON.stringify(element.id) === JSON.stringify(payload.id) || 
-                        JSON.stringify(element.id) === JSON.stringify(payload.friend_id)) {
+                    if (JSON.stringify(element.id) === JSON.stringify(id) || 
+                        JSON.stringify(element.id) === JSON.stringify(friendId)) {
     
                         docs[0].friends.splice(index, 1);
                         db.collection('users_info').updateOne(
@@ -281,40 +305,41 @@ class SomeMongo {
                                     client.close();
                                     return callback(err);
                                 }
-                                if (done) {
-                                    out++;
+
+                                if (docs.length === 1) {
                                     client.close();
-                                    callback(null, out)
-                                } else {
-                                    done = true;
-                                    out++;
+                                    return callback(null, [result, result]);
                                 }
-                            }
-                        )
-                    }
-                });
-    
-                docs[1].friends.forEach((element, index) => {
-                    if (JSON.stringify(element.id) === JSON.stringify(payload.id)
-                        || JSON.stringify(element.id) === JSON.stringify(payload.friend_id)) {
-                        docs[1].friends.splice(index, 1);
-                        db.collection('users_info').updateOne(
-                            { id: docs[1].id },
-                            { $set: { friends: docs[1].friends } },
-                            (err, result) => {
-                                if (err) {
-                                    console.log(err);
-                                    client.close();
-                                    return callback(err);
-                                }
-                                if (done) {
-                                    out++;
-                                    client.close();
-                                    callback(null, out);
-                                } else {
-                                    done = true;
-                                    out++;
-                                }
+
+                                docs[1].friends.forEach((element, index) => {
+                                    if (JSON.stringify(element.id) === JSON.stringify(id)
+                                        || JSON.stringify(element.id) === JSON.stringify(friendId)) {
+                                        docs[1].friends.splice(index, 1);
+                                        db.collection('users_info').updateOne(
+                                            { id: docs[1].id },
+                                            { $set: { friends: docs[1].friends } },
+                                            (err, result) => {
+                                                if (err) {
+                                                    console.log(err);
+                                                    client.close();
+                                                    return callback(err);
+                                                }
+                                                db.collection('users_info').find(
+                                                    { $or: [ { id: id }, { id: friendId } ] }
+                                                ).toArray((err, docs) => {
+                                                    if (err) {
+                                                        console.log(err);
+                                                        client.close();
+                                                        return callback(err);
+                                                    }
+
+                                                    client.close();
+                                                    return callback(null, docs)
+                                                })
+                                            }
+                                        )
+                                    }
+                                });
                             }
                         )
                     }
@@ -348,19 +373,13 @@ class SomeMongo {
         })
     }
     
-    
-    
-    saveFriendMessage(payload, callback) {
+    saveMessage(payload, callback) {
         let message = {};
-        let groupFriend = [payload.id, payload.friend_id];
-        groupFriend.sort();
-        message.group = groupFriend[0] + groupFriend[1];
-        message.contents = payload.contents;
+        message.room = payload.room;
         message.sender = payload.id;
-        message.receivers = [];
-        message.receivers.push({ id: payload.friend_id, seen: false });
+        message.contents = payload.contents;
         message.created_date = Date.now();
-            
+
         connectDb((client, db) => {
             db.collection('messages').insertOne(message, (err, result) => {
                 if (err) {
@@ -373,84 +392,191 @@ class SomeMongo {
             })
         })
     }
-    
-    getFriendMessages(payload, callback) {
+
+    getMessages(payload, callback) {
         let message = {};
-        let groupFriend = [payload.id, payload.friend_id];
-        groupFriend.sort();
-        message.group = groupFriend[0] + groupFriend[1];
-        message.from = parseInt(payload.from);
-        message.to = parseInt(payload.to);
-    
+        message.$and = [ { room: payload.room } ];
+        if (payload.from && payload.to) message.$and.push({ created_date: { $gt: payload.from, $lt: payload.to } });
+        else if (payload.from) message.$and.push({ created_date: { $gt: payload.from } });
+
         connectDb((client, db) => {
-            db.collection('messages').find({ 
-                group: message.group,
-                created_date: {$gt: 1518951332141}
-            }).toArray((err, docs) => {
+            db.collection('messages').find(message).sort({ created_date: 1 }).limit(20).toArray((err, docs) => {
+                if (err) {
+                    console.log(err);
+                    client.close();
+                    callback(err);
+                }
+                client.close();
+                callback(null, docs.slice(-20));
+            })
+        })
+    }
+    
+    
+    // saveFriendMessage(payload, callback) {
+    //     let message = {};
+    //     let groupFriend = [payload.id, payload.friend_id];
+    //     groupFriend.sort();
+    //     message.group = groupFriend[0] + groupFriend[1];
+    //     message.contents = payload.contents;
+    //     message.sender = payload.id;
+    //     message.receivers = [];
+    //     message.receivers.push({ id: payload.friend_id, seen: false });
+    //     message.created_date = Date.now();
+            
+    //     connectDb((client, db) => {
+    //         db.collection('messages').insertOne(message, (err, result) => {
+    //             if (err) {
+    //                 console.log(err);
+    //                 client.close();
+    //                 return callback(err);
+    //             }
+    //             client.close();
+    //             callback(null, result.ops[0]);
+    //         })
+    //     })
+    // }
+
+    getRoom(payload, callback) {
+        let filter = {
+            _id: new ObjectID(payload.id)
+        }
+        connectDb((client, db) => {
+            db.collection('rooms').find(filter).toArray((err,docs) => {
                 if (err) {
                     console.log(err);
                     client.close();
                     return callback(err);
                 }
+
                 client.close();
-                callback(null, docs);
+                callback(null, docs[0]);
             })
         })
     }
-    
-    updateReceivedMessage(payload, callback) {
+
+    getRoomsByGroup(payload, callback) {
         connectDb((client, db) => {
-            db.collection('messages').find({ _id: payload.id }).toArray((err, docs) => {
-                docs[0].receivers.forEach((element) => {
-                    if (JSON.stringify(element.id) === JSON.stringify(payload.receiver)) {
-                        element.received = true;
-                        db.collection('messages').findOneAndUpdate(
-                            { _id: payload.id }, 
-                            { $set: { receivers: element } },
-                            (err, result) => {
-                                if (err) {
-                                    console.log(err);
-                                    client.close();
-                                    return callback(err);
-                                }
+            db.collection('groups').find({ _id: new ObjectID(payload.groupId) }).toArray((err, docs) => {
+                if (err) {
+                    console.log(err);
+                    client.close();
+                    return callback(err);
+                }
+
+                let roomsArr = [];
+                docs[0].rooms.forEach((element, index) => {
+                    roomsArr.push({ _id: new ObjectID(element) });
+                    if (roomsArr.length === docs[0].rooms.length) {
+                        db.collection('rooms').find({ $or: roomsArr }).toArray((err, docs2) => {
+                            if (err) {
+                                console.log(err);
                                 client.close();
-                                callback(null, result.result);
+                                return callback(err);
                             }
-                        )
+
+                            client.close();
+                            return callback(null, docs2);
+                        })
                     }
                 })
             })
         })
     }
     
+    // getFriendMessages(payload, callback) {
+    //     let message = {};
+    //     let groupFriend = [payload.id, payload.friend_id];
+    //     groupFriend.sort();
+    //     message.group = groupFriend[0] + groupFriend[1];
+    //     message.from = parseInt(payload.from);
+    //     message.to = parseInt(payload.to);
+    
+    //     connectDb((client, db) => {
+    //         db.collection('messages').find({ 
+    //             group: message.group,
+    //             created_date: {$gt: 1518951332141}
+    //         }).toArray((err, docs) => {
+    //             if (err) {
+    //                 console.log(err);
+    //                 client.close();
+    //                 return callback(err);
+    //             }
+    //             client.close();
+    //             callback(null, docs);
+    //         })
+    //     })
+    // }
+    
+    // updateReceivedMessage(payload, callback) {
+    //     connectDb((client, db) => {
+    //         db.collection('messages').find({ _id: payload.id }).toArray((err, docs) => {
+    //             docs[0].receivers.forEach((element) => {
+    //                 if (JSON.stringify(element.id) === JSON.stringify(payload.receiver)) {
+    //                     element.received = true;
+    //                     db.collection('messages').findOneAndUpdate(
+    //                         { _id: payload.id }, 
+    //                         { $set: { receivers: element } },
+    //                         (err, result) => {
+    //                             if (err) {
+    //                                 console.log(err);
+    //                                 client.close();
+    //                                 return callback(err);
+    //                             }
+    //                             client.close();
+    //                             callback(null, result.result);
+    //                         }
+    //                     )
+    //                 }
+    //             })
+    //         })
+    //     })
+    // }
+    
     createGroup(payload, callback) {
         let group = {};
-        group.name = payload.name;
-        group.description = payload.description;
+        group.name = payload.groupName;
+        group.description = payload.groupDescription;
         group.members = [];
         group.admin = payload.id;
         group.members.push({
             id: payload.id,
             join_date: Date.now()
         })
+        group.rooms = [];
         group.created_date = Date.now();
-    
+
+        let room = {
+            name: 'new room',
+            members: [{ id: payload.id, track: 0 }],
+            created_date: Date.now()
+        }
+
         connectDb((client, db) => {
-            db.collection('groups').insertOne(group, (err, result) => {
+            db.collection('rooms').insertOne(room, (err, result) => {
                 if (err) {
                     console.log(err);
                     client.close();
                     return callback(err);
                 }
-                client.close();
-                callback(null, result.ops[0]._id);
+                group.rooms.push(result.ops[0]._id);
+
+                db.collection('groups').insertOne(group, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        client.close();
+                        return callback(err);
+                    }
+                    client.close();
+                    callback(null, result.ops[0]._id);
+                })
             })
-        })
+        });
     }
     
-    findGroupByMember(payload, callback) {
+    getGroupByUser(payload, callback) {
         connectDb((client, db) => {
-            db.collection('groups').find({ members: payload.id }).toArray((err, docs) => {
+            db.collection('groups').find({ members: { $elemMatch: { id: payload.id } } }).toArray((err, docs) => {
                 if (err) {
                     console.log(err);
                     client.close();
@@ -461,60 +587,95 @@ class SomeMongo {
             })
         })
     }
-    
-    saveGroupMessage(payload, callback) {
-        let message = {};
-        message.group = payload.group;
-        message.contents = payload.contents;
-        message.sender = payload.sender;
-        message.receivers = [];
-        message.created_date = Date.now();
-    
+
+    addRoom(payload, callback) {
+        let room = {
+            name: payload.roomName,
+            members: [ { id: payload.id, track: 0 } ],
+            created_date: Date.now()
+        }
         connectDb((client, db) => {
-            db.collection('groups').find({ _id: payload.id }).toArray((err, docs) => {
-                if (err) {
-                    console.log(err);
-                    client.close();
-                    return callback(err);
-                } else {
-                    let count = 0;
-                    docs[0].members.forEach((element) => {
-                        message.receivers.push({ id: element.id, received: false });
-                        count++;
-                        if (count === docs[0].members.length) {
-                            db.collection('messages').insertOne(message, (err, result) => {
-                                if (err) {
-                                    console.log(err);
-                                    client.close();
-                                    return callback(err);
-                                }
+            db.collection('rooms').insertOne(room , (err, result) => {
+                db.collection('groups').find({ _id: new ObjectID(payload.groupId) }).toArray((err, docs) => {
+                    if (err) {
+                        console.log(err);
+                        client.close();
+                        return callback(err);
+                    }
+
+                    docs[0].rooms.push(result.ops[0]._id);
+                    db.collection('groups').updateOne(
+                        { _id: docs[0]._id }, 
+                        { $set: { rooms: docs[0].rooms } },
+                        (err, result2) => {
+                            if (err) {
+                                console.log(err);
                                 client.close();
-                                callback(null, result.ops[0]._id);
-                            })
+                                return callback(err);
+                            }
+
+                            client.close();
+                            callback(null, result.ops[0]._id);
                         }
-                    })
-                }
+                    )
+                })
             })
         })
     }
     
-    getGroupMessages(payload, callback) {
-        connectDb((client, db) => {
-            db.collection('messages').find({
-                group: payload.group,
-                created_date: { $gt: payload.from, $lt: payload.to }
-            }).toArray((err, docs) => {
-                if (err) {
-                    console.log(err);
-                    client.close();
-                    return callback(err);
-                } else {
-                    client.close();
-                    callback(null, docs);
-                }
-            })
-        })
-    }
+    // saveGroupMessage(payload, callback) {
+    //     let message = {};
+    //     message.group = payload.group;
+    //     message.contents = payload.contents;
+    //     message.sender = payload.sender;
+    //     message.receivers = [];
+    //     message.created_date = Date.now();
+    
+    //     connectDb((client, db) => {
+    //         db.collection('groups').find({ _id: payload.id }).toArray((err, docs) => {
+    //             if (err) {
+    //                 console.log(err);
+    //                 client.close();
+    //                 return callback(err);
+    //             } else {
+    //                 let count = 0;
+    //                 docs[0].members.forEach((element) => {
+    //                     message.receivers.push({ id: element.id, received: false });
+    //                     count++;
+    //                     if (count === docs[0].members.length) {
+    //                         db.collection('messages').insertOne(message, (err, result) => {
+    //                             if (err) {
+    //                                 console.log(err);
+    //                                 client.close();
+    //                                 return callback(err);
+    //                             }
+    //                             client.close();
+    //                             callback(null, result.ops[0]._id);
+    //                         })
+    //                     }
+    //                 })
+    //             }
+    //         })
+    //     })
+    // }
+    
+    // getGroupMessages(payload, callback) {
+    //     connectDb((client, db) => {
+    //         db.collection('messages').find({
+    //             group: payload.group,
+    //             created_date: { $gt: payload.from, $lt: payload.to }
+    //         }).toArray((err, docs) => {
+    //             if (err) {
+    //                 console.log(err);
+    //                 client.close();
+    //                 return callback(err);
+    //             } else {
+    //                 client.close();
+    //                 callback(null, docs);
+    //             }
+    //         })
+    //     })
+    // }
 }
 
 module.exports = new SomeMongo();

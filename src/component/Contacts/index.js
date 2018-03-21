@@ -12,13 +12,15 @@ class Contacts extends Component {
 
         this.state = {
             friends: [],
-            searchResult: []
+            searchResult: [],
+            userInfo: {}
         }
 
         this.chooseItem = this.chooseItem.bind(this);
+        this.viewInfo = this.viewInfo.bind(this);
     }
 
-    handleResponse(result) {
+    handleLoadFriendInfoResponse(result) {
         if (!result.success) {
             console.log(result);
             return console.log('cant get friend info');
@@ -26,21 +28,49 @@ class Contacts extends Component {
         userAction.loadFriendInfo(result.result);
     }
 
+    handleGetToViewResponse(result) {
+        if (!result.success) {
+            console.log(result);
+            return console.log('something worng');
+        }
+        userAction.viewInfo(result.result);
+    }
+
     componentWillMount() {
         userStore.addLoadFriendInfoListener(() => {
             this.setState({
                 friends: userStore.getFriendInfo()
             })
+            if (this.state.userInfo.id) {
+                let tem = this.state.friends
+                this.state.userInfo.friends.forEach((element, index) => {
+                    tem.forEach((element1, index) => {
+                        if (element.id === element1.id) {
+                            element1.room = element.room;
+                            element1.inv = element.track;
+                            this.setState({
+                                friends: tem
+                            });
+                        }
+                    })
+                });
+            }
         });
 
         userStore.addLoadSearchResultListener(() => {
             this.setState({
                 searchResult: userStore.getSearchResult()
             });
-            console.log(userStore.getSearchResult());
         });
 
-        registerHandleResponse('loadFriendsInfo', this.handleResponse);
+        userStore.addLoadUserInfoListener(() => {
+            this.setState({
+                userInfo: userStore.getUserInfo()
+            })
+        })
+
+        registerHandleResponse('loadFriendsInfo', this.handleLoadFriendInfoResponse);
+        registerHandleResponse('getToView', this.handleGetToViewResponse);
     }
 
     componentDidMount() {
@@ -54,18 +84,26 @@ class Contacts extends Component {
             })
         });
 
-        userStore.addLoadSearchResultListener(() => {
+        userStore.removerLoadSearchResultListener(() => {
             this.setState({
                 searchResult: userStore.getSearchResult()
             })
         });
 
-        removeHandleResponse('loadFriendsInfo', this.handleResponse);
+        userStore.removerLoadUserInfoListener(() => {
+            this.setState({
+                userInfo: userStore.getUserInfo()
+            })
+        })
+
+        removeHandleResponse('loadFriendsInfo', this.handleLoadFriendInfoResponse);
+        removeHandleResponse('getToView', this.handleGetToViewResponse);
     }
 
-    chooseItem(ma, id) {
+    chooseItem(ma, id, room) {
         let payload = {
-            friendId: ma
+            friendId: ma,
+            room: room.id
         }
         messageAction.changeChatObj(this.state.friends[id]);
         messageAction.getFriendMessage(payload, (response) => {
@@ -76,19 +114,28 @@ class Contacts extends Component {
     }
 
     viewInfo(ma, id) {
-        console.log('gpgp');
+        userAction.getToView(ma, (err, response) => {
+            if (err) return console.log(err);
+        })
     }
 
     render() {
+        if (this.state.userInfo.id && this.state.friends.length > 0) {
+
+        }
+
         const listItem = !userStore.getSearchMode() ? this.state.friends.map((item, index) => {
             return (
-                <Contact key={index} 
+                <Contact key={index}
+                    room={item.room}
                     id={index} 
                     username={item.info.name} 
                     online={true} 
                     ma={item.id} 
                     onClick={this.chooseItem}
                     viewInfo={this.viewInfo}
+                    optId={this.state.optId === '' ? '' : index}
+                    inv={item.inv}
                 />
             )
         }) : this.state.searchResult.map((item, index) => {
@@ -100,6 +147,7 @@ class Contacts extends Component {
                     ma={item.id}
                     onClick={this.viewInfo}
                     viewInfo={false}
+                    optId={this.state.optId === '' ? '' : index}
                 />
             )
         });
@@ -110,32 +158,34 @@ class Contacts extends Component {
                     return (<li key={item.id} id={index} ma={item.id} onClick={this.chooseItem}>{item.info.name}</li>)
                 })} */}
                 {listItem}
-                {/* <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} />
-                <Contact username="huong" online={true} /> */}
+                {/* <Contact username="huong" online={true} id={0} ma={2} onClick={this.viewInfo} viewInfo={this.viewInfo} optId={this.state.optId}/>
+                <Contact username="huong" online={true} id={1} ma={2} onClick={this.viewInfo} viewInfo={this.viewInfo} optId={this.state.optId}/>
+                <Contact username="huong" online={true} id={2} ma={2} onClick={this.viewInfo} viewInfo={this.viewInfo} optId={this.state.optId}/>
+                <Contact username="huong" online={true} id={3} ma={2} onClick={this.viewInfo} viewInfo={this.viewInfo} optId={this.state.optId}/>
+                <Contact username="huong" online={true} id={4} ma={2} onClick={this.viewInfo} viewInfo={this.viewInfo} optId={this.state.optId}/>
+                <Contact username="huong" online={true} id={5} ma={2} onClick={this.viewInfo} viewInfo={this.viewInfo} optId={this.state.optId}/>
+                <Contact username="huong" online={true} id={6} ma={2} onClick={this.viewInfo} viewInfo={this.viewInfo} optId={this.state.optId}/> */}
             </ul>
         )
     }
 }
 
-const Contact = ({ username, online, ma, onClick, id, viewInfo }) => {
+const Contact = ({ room, username, online, ma, onClick, id, viewInfo, optId, inv }) => {
     return (
-        <li className="contact-item" ma={ma} >
-            <div className="contact-view" onClick={() => {onClick(ma, id)}}>
+        <li className="contact-item" ma={id} >
+            <div className="contact-view" onClick={() => {onClick(ma, id, room)}}>
                 <img className="ava" src="/static/media/default_ava.cf22e533.jpg" alt="ava"/>
                 <div className="contact-content">
                     <div className="username">{username}</div>
-                    <div className="contact-message">recent message</div>
+                    <div className="contact-message">
+                        {inv === -1 ? 'wait for reply' : inv === -2 ? username + ' want to add friend' : 'some'}
+                    </div>
                 </div>
                 <div className={online ? "dot active" : "dot deactive"}>
                     <i className="fas fa-circle"></i>
                 </div>
             </div>
-            <div className={viewInfo ? "option" : "hide"} onClick={() => {viewInfo ? viewInfo(ma, id) : {}}}>
+            <div className={viewInfo ? "option" : "hide"} onClick={() => {viewInfo ? viewInfo(ma, id) : console.log('object')}}>
                  <i className="fas fa-ellipsis-v"></i>
             </div>
         </li>

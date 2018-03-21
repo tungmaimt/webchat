@@ -153,3 +153,39 @@ const mongodb = require('./mongodb');
 //         client.close();
 //     })
 // })
+
+// mongodb.addFriend('asd', (err, result) => {
+//     if (err) console.log(err);
+//     console.log(result);
+// })
+
+// mongoClient.connect(url, (err, client) => {
+//     let db = client.db(dbName);
+//     db.collection('groups').find().toArray((err, docs) => {
+//         if (err) {
+//             console.log(err);
+//             return client.close();
+//         }
+//         console.log(docs[0].members);
+//         db.collection('rooms').find({ _id: docs[0].room[0] }).toArray((err, docs) => {
+//             if (err) {
+//                 console.log(err);
+//                 return client.close();
+//             }
+//             console.log(docs[0].members);
+//             client.close();
+//         })
+//     })
+// })
+
+mongoClient.connect(url, (err, client) => {
+    let db = client.db(dbName);
+    db.collection('groups').drop((err, result) => {
+        if (err) {
+            console.log(err);
+            client.close();
+        }
+        console.log(result);
+        client.close();
+    });
+})

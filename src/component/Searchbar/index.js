@@ -5,21 +5,22 @@ import { registerHandleResponse, removeHandleResponse } from '../../something';
 
 class Searchbar extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.state = {
-            searchingKey: ''
+            searchingKey: '',
+            flag: props.flag
         }
 
         this.updateInput = this.updateInput.bind(this);
-        this.searchSomeThing = this.searchSomeThing.bind(this);
+        this.searchUser = this.searchUser.bind(this);
+        this.searchGroup = this.searchGroup.bind(this);
     }
 
     handleResponse(result) {
         if (!result.success) {
-            console.log(result);
-            return console.log('errrrrrrr');
+            return console.log(result);
         }
         userAction.loadSearchResult({
             searchMode: true,
@@ -35,10 +36,17 @@ class Searchbar extends Component {
         removeHandleResponse('search', this.handleResponse);
     }
 
-    searchSomeThing(event) {
-        if (this.state.searchingKey === '') {
+    searchUser(event) {
+        if (this.state.searchingKey.length === 0) {
             userAction.loadSearchResult({
                 searchMode: false,
+                searchResult: []
+            });
+            return;
+        }
+        if (this.state.searchingKey.length < 2) {
+            userAction.loadSearchResult({
+                searchMode: true,
                 searchResult: []
             });
             return;
@@ -46,8 +54,11 @@ class Searchbar extends Component {
         event.preventDefault();
         userAction.search(this.state.searchingKey, (err, response) => {
             if (err) console.log(err);
-            console.log(response);
         })
+    }
+
+    searchGroup() {
+        console.log('group searching');
     }
 
     updateInput(event) {
@@ -65,7 +76,7 @@ class Searchbar extends Component {
                 className='searchbar'
                 value={this.state.searchingKey}
                 onChange={this.updateInput}
-                onKeyUp={this.searchSomeThing}/>
+                onKeyUp={this.state.flag ? this.searchUser: this.searchGroup}/>
         )
     }
 }

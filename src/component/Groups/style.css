@@ -1,0 +1,61 @@
+ul {
+    list-style: none;
+}
+
+ul li {
+    cursor: pointer;
+}
+
+.hide {
+    display: none;
+}
+
+.group-item {
+    user-select: none;
+    display: flex;
+    color: #eee;
+    padding: 10px;
+    line-height: 35px;
+}
+
+.group-item .group-view {
+    display: flex;
+    flex: auto;
+}
+
+.group-item .group-content {
+    flex: auto;
+    line-height: 16px;
+    padding-top: 5px;
+}
+
+.group-item:hover {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.group-item .group-message {
+    font-size: 11px;
+    color: #969696;
+}
+
+.group-item .ava {
+    width: 35px;
+    height: 35px;
+}
+
+.group-item .dot {
+    padding: 0 10px;
+    font-size: 11px;
+}
+
+.group-item .dot.active {
+    color: #4CAF50;
+}
+
+.group-item .dot.deactive {
+    color: #dddddd;
+}
+
+.group-item .option:hover {
+    color: aqua;
+}

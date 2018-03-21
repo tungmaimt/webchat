@@ -73,9 +73,16 @@ class InputMessage extends Component {
             mes = mess;
         }
 
+        if (!this.state.chatObj.room) {
+            this.setState({
+                inputMessage: ''
+            })
+            return;
+        }
+
         if (mes !== '') {
             let payload = {
-                friendId: this.state.chatObj.id,
+                room: this.state.chatObj.room.id,
                 message: mes
             };
             messageAction.sendFriendMessage(payload, () => {

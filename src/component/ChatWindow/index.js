@@ -18,6 +18,8 @@ class ChatWindow extends Component {
             title: '',
             showSetting: false
         }
+
+        this.loadDirectMessage = this.loadDirectMessage.bind(this);
     }
 
     componentWillMount() {
@@ -41,15 +43,7 @@ class ChatWindow extends Component {
             });
         })
 
-        registerHandleResponse('directMessage', (result) => {
-            if (!result.success) {
-                console.log('cant get direct message');
-                return console.log(result);
-            }
-            let chatMess = this.state.chatMess;
-            chatMess.push(result.result);
-            messageAction.changeChatMess(chatMess);
-        });
+        registerHandleResponse('directMessage', this.loadDirectMessage);
 
         registerHandleResponse('loadFriendMessages', this.loadFriendMessages);
     }
@@ -61,6 +55,24 @@ class ChatWindow extends Component {
         }
         smooth = false;
         messageAction.changeChatMess(result.result);
+    }
+
+    loadDirectMessage(result) {
+        if (!result.success) {
+            console.log('cant get direct message');
+            return console.log(result);
+        }
+        if (!messageStore.getChatObj().room) {
+            return console.log('ko co thang nao o day');
+        }
+        if (messageStore.getChatObj().room.id + '' !== result.result.room + '') {
+            console.log(messageStore.getChatObj().room.id);
+            console.log(result.result.room);
+            return console.log('eu phai thang nay');
+        }
+        let chatMess = this.state.chatMess.slice();
+        chatMess.push(result.result);
+        messageAction.changeChatMess(chatMess);
     }
 
     componentWillUnmount() {
@@ -84,15 +96,7 @@ class ChatWindow extends Component {
             });
         })
 
-        removeHandleResponse('directMessage', (result) => {
-            if (!result.success) {
-                console.log('cant get direct message');
-                return console.log(result);
-            }
-            let chatMess = this.state.chatMess;
-            chatMess.push(result.result);
-            messageAction.changeChatMess(chatMess);
-        });
+        removeHandleResponse('directMessage', this.loadDirectMessage);
 
         removeHandleResponse('loadFriendMessages', this.loadFriendMessages)
     }
@@ -107,8 +111,9 @@ class ChatWindow extends Component {
     }
 
     render() {
-        const listMessage = this.state.chatMess.map((item, index) => {
-            let own = item.sender === localStorage.get_Id() ? true : false
+        const lm = this.state.chatMess.slice();
+        const listMessage = lm.map((item, index) => {
+            let own = item.sender + '' === localStorage.get_Id() + '' ? true : false
             let da = new Date(item.created_date).toLocaleTimeString();
             return (
                 <Message key={index} own={own} message={item.contents} date={da} />

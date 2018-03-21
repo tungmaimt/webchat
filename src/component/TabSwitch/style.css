@@ -1,0 +1,17 @@
+.tabSwitch {
+
+}
+
+.tabSwitch .tab {
+    display: flex;
+    flex-direction: row;
+    flex-grow: auto;
+}
+
+.hide {
+    display: none;
+}
+
+.active {
+    display: block;
+}

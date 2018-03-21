@@ -20,6 +20,25 @@ router.get('/', (req, res) => {
     });
 });
 
+router.get('/:id', (req, res) => {
+    let payload = { 
+        id: req.params.id,
+        _id: req.headers['_id']
+    };
+    queue.push({
+        topic: queue.TOPIC.USER_ACTION,
+        stream: queue.STREAM,
+        type: queue.TYPE.GET_TO_VIEW_INFO,
+        data: { payload: payload }
+    }, (err) => {
+        if (err) {
+            console.log(err);
+            return res.json({ err });
+        }
+        res.json({ res: 'ok' });
+    })
+})
+
 router.get('/search/:key', (req, res) => {
     let payload = {
         id: req.headers['_id'],
@@ -73,6 +92,35 @@ router.post('/oauth', (req, res) => {
         res.json({ res: 'ok' });
     });
 });
+
+router.put('/friend/', (req, res) => {
+    let payload = {
+        id: req.headers['_id'],
+        friendId: req.query.id
+    }
+    if (req.query.action === 'remove') {
+        queue.push({
+            topic: queue.TOPIC.USER_ACTION,
+            stream: queue.STREAM,
+            type: queue.TYPE.REMOVE_FRIEND,
+            data: { payload: payload }
+        }, (err) => {
+            if (err) return res.json({ err });
+            res.json({ res: 'ok' });
+        });
+    } else {
+        queue.push({
+            topic: queue.TOPIC.USER_ACTION,
+            stream: queue.STREAM,
+            type: queue.TYPE.ADD_FRIEND,
+            data: { payload: payload }
+        }, (err) => {
+            if (err) return res.json({ err });
+            res.json({ res: 'ok' });
+        });
+    }
+    
+})
 
 // router.get('/:searchingKey', (req, res) => {
 //     res.json({ res: 'ok' });
