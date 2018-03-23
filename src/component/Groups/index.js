@@ -23,6 +23,7 @@ class Groups extends Component {
 
         registerHandleResponse('loadGroupsInfo', this.handleLoadGroupInfoResponse);
         registerHandleResponse('loadRoomsInfo', this.handleLoadRoomsInfoResponse);
+        registerHandleResponse('loadUsersInfoInGroup', this.handleLoadUsersInfoInGroup);
     }
 
     componentWillUnmount() {
@@ -34,6 +35,7 @@ class Groups extends Component {
 
         removeHandleResponse('loadGroupsInfo', this.handleLoadGroupInfoResponse);
         removeHandleResponse('loadRoomsInfo', this.handleLoadRoomsInfoResponse);
+        removeHandleResponse('loadUsersInfoInGroup', this.handleLoadUsersInfoInGroup);
     }
 
     handleLoadGroupInfoResponse(result) {
@@ -50,6 +52,14 @@ class Groups extends Component {
             return console.log('something worng');
         }
         groupAction.loadRoomsInfo(result.result);
+    }
+
+    handleLoadUsersInfoInGroup(result) {
+        if (!result.success) {
+            console.log(result);
+            return console.log('something worng');
+        }
+        groupAction.loadUsersInfoInGroup(result.result);
     }
 
     viewGroup(ma) {

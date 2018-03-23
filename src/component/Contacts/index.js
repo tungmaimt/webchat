@@ -102,15 +102,15 @@ class Contacts extends Component {
 
     chooseItem(ma, id, room) {
         let payload = {
-            friendId: ma,
             room: room.id
         }
         messageAction.changeChatObj(this.state.friends[id]);
-        messageAction.getFriendMessage(payload, (response) => {
+        messageAction.getMessage(payload, (response) => {
             if (response.res !== 'ok') {
                 console.log(response);
             }
         })
+        console.log(this.state.friends[id].room);
     }
 
     viewInfo(ma, id) {

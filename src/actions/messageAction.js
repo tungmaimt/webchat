@@ -3,7 +3,7 @@ import ActionTypes from '../constants';
 import { localStorage, fetchSomething, socket } from '../something';
 
 class MessageAction {
-    getFriendMessage(payload, callback) {
+    getMessage(payload, callback) {
         fetchSomething('/api/message', {
             method: 'GET',
             headers: new Headers({
@@ -18,7 +18,7 @@ class MessageAction {
         });
     }
 
-    sendFriendMessage(payload, callback) {
+    sendMessage(payload, callback) {
         socket.emit('wcMessage', { 
             id: localStorage.get_Id(),
             token: localStorage.getToken(),

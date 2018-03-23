@@ -10,7 +10,8 @@ class InputMessage extends Component {
 
         this.state = {
             inputMessage: '',
-            chatObj: {}
+            chatObj: {},
+            room: ''
         }
 
         this.sendFriendMessage = this.sendFriendMessage.bind(this);
@@ -21,7 +22,8 @@ class InputMessage extends Component {
     componentWillMount() {
         messageStore.addChangeChatObjListener(() => {
             this.setState({
-                chatObj: messageStore.getChatObj()
+                chatObj: messageStore.getChatObj(),
+                room: messageStore.getChatObj().room ? messageStore.getChatObj().room.id : messageStore.getChatObj()._id
             });
         });
     }
@@ -35,8 +37,10 @@ class InputMessage extends Component {
     componentWillUnmount() {
         messageStore.removeChangeChatObjListener(() => {
             this.setState({
-                chatObj: messageStore.getChatObj()
-            })
+                chatObj: messageStore.getChatObj(),
+                room: messageStore.getChatObj().room ? messageStore.getChatObj().room.id : messageStore.getChatObj()._id
+            });
+            console.log(this.state.room);
         })
         this.btnPlane.removeEventListener('click', () => {
             this.sendFriendMessage(this.state.inputMessage);
@@ -73,7 +77,7 @@ class InputMessage extends Component {
             mes = mess;
         }
 
-        if (!this.state.chatObj.room) {
+        if (!this.state.chatObj.room && !this.state.chatObj._id) {
             this.setState({
                 inputMessage: ''
             })
@@ -82,10 +86,10 @@ class InputMessage extends Component {
 
         if (mes !== '') {
             let payload = {
-                room: this.state.chatObj.room.id,
+                room: this.state.room,
                 message: mes
             };
-            messageAction.sendFriendMessage(payload, () => {
+            messageAction.sendMessage(payload, () => {
                 // console.log(payload);
             });
         } 

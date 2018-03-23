@@ -4,6 +4,7 @@ import ActionTypes from '../constants';
 
 const CHANGE_CHATOBJ = 'CHANGE_CHATOBJ';
 const CHANGE_CHATMESS = 'CHANGE_CHATMESS';
+
 let chatObj = {};
 let chatMess = [];
 

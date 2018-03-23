@@ -303,16 +303,30 @@ const registerQueue = (socket) => {
                     console.log(err);
                     return done();
                 }
-                
-                socketMap.forEach((element, index) => {
-                    if (JSON.stringify(element.userId) === JSON.stringify(message.data.payload.id)) {
-                        socket(element.socketId, 'response', {
-                            response: 'loadRoomsInfo',
-                            result: { success: true, result }
-                        });
+
+                mongodb.getUsersInfoInGroup(message.data.payload, (err, result2) => {
+                    if (err) {
+                        console.log(err);
+                        return done();
                     }
+
+                    socketMap.forEach((element, index) => {
+                        if (JSON.stringify(element.userId) === JSON.stringify(message.data.payload.id)) {
+                            socket(element.socketId, 'response', {
+                                response: 'loadRoomsInfo',
+                                result: { success: true, result }
+                            });
+
+                            socket(element.socketId, 'response', {
+                                response: 'loadUsersInfoInGroup',
+                                result: { success: true, result: result2 }
+                            });
+                        }
+                    })
+                    done();
                 })
-                done();
+                
+                
             })
         }
     );
@@ -358,7 +372,7 @@ const registerQueue = (socket) => {
                 socketMap.forEach((element, index) => {
                     if (JSON.stringify(element.userId) === JSON.stringify(message.data.payload.id)) {
                         socket(element.socketId, 'response', {
-                            response: 'loadFriendMessages',
+                            response: 'loadMessages',
                             result: { success: true, result }
                         })
                     }

@@ -76,7 +76,8 @@ class Searchbar extends Component {
                 className='searchbar'
                 value={this.state.searchingKey}
                 onChange={this.updateInput}
-                onKeyUp={this.state.flag ? this.searchUser: this.searchGroup}/>
+                onKeyUp={this.state.flag ? this.searchUser: this.searchGroup}
+            />
         )
     }
 }

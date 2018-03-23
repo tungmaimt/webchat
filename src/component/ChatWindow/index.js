@@ -16,7 +16,8 @@ class ChatWindow extends Component {
         this.state = {
             chatMess: [],
             title: '',
-            showSetting: false
+            showSetting: false,
+            room: ''
         }
 
         this.loadDirectMessage = this.loadDirectMessage.bind(this);
@@ -33,7 +34,8 @@ class ChatWindow extends Component {
 
         messageStore.addChangeChatObjListener(() => {
             this.setState({
-                title: messageStore.getChatObj().info.name
+                title: messageStore.getChatObj().name || messageStore.getChatObj().info.name,
+                room: messageStore.getChatObj().room ? messageStore.getChatObj().room.id : messageStore.getChatObj()._id
             })
         });
 
@@ -45,10 +47,10 @@ class ChatWindow extends Component {
 
         registerHandleResponse('directMessage', this.loadDirectMessage);
 
-        registerHandleResponse('loadFriendMessages', this.loadFriendMessages);
+        registerHandleResponse('loadMessages', this.loadMessages);
     }
 
-    loadFriendMessages(result) {
+    loadMessages(result) {
         if (!result.success) {
             console.log('cant load message');
             return console.log(result);
@@ -62,11 +64,8 @@ class ChatWindow extends Component {
             console.log('cant get direct message');
             return console.log(result);
         }
-        if (!messageStore.getChatObj().room) {
-            return console.log('ko co thang nao o day');
-        }
-        if (messageStore.getChatObj().room.id + '' !== result.result.room + '') {
-            console.log(messageStore.getChatObj().room.id);
+        if (this.state.room === '') {
+            console.log(this.state.room);
             console.log(result.result.room);
             return console.log('eu phai thang nay');
         }
@@ -98,7 +97,7 @@ class ChatWindow extends Component {
 
         removeHandleResponse('directMessage', this.loadDirectMessage);
 
-        removeHandleResponse('loadFriendMessages', this.loadFriendMessages)
+        removeHandleResponse('loadMessages', this.loadMessages)
     }
 
     moveScroll() {

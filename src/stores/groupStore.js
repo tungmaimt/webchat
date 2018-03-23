@@ -5,10 +5,12 @@ import ActionTypes from '../constants';
 const LOAD_GROUPS_INFO = 'LOAD_GROUPS_INFO';
 const VIEW_GROUP = 'VIEW_GROUP';
 const LOAD_ROOMS_INFO = 'LOAD_ROOMS_INFO';
+const LOAD_USERS_INFO_IN_GROUP = 'LOAD_USERS_INFO_IN_GROUP';
 
 let groups = [];
 let info = {};
-let rooms = []
+let rooms = [];
+let usersInfoInGroup = [];
 
 class GroupStore extends EventEmitter {
 
@@ -29,6 +31,9 @@ class GroupStore extends EventEmitter {
             case ActionTypes.LOAD_ROOMS_INFO:
                 this.loadRoomsInfo(action.payload);
             break;
+            case ActionTypes.LOAD_USERS_INFO_IN_GROUP:
+                this.loadUsersInfoInGroup(action.payload);
+            break;
             default:
         }
     }
@@ -46,6 +51,11 @@ class GroupStore extends EventEmitter {
     loadRoomsInfo(payload) {
         rooms = payload;
         this.emit(LOAD_ROOMS_INFO);
+    }
+
+    loadUsersInfoInGroup(payload) {
+        usersInfoInGroup = payload;
+        this.emit(LOAD_USERS_INFO_IN_GROUP);
     }
 
     addViewGroupListener(callback) {
@@ -72,6 +82,14 @@ class GroupStore extends EventEmitter {
         this.removeListener(LOAD_ROOMS_INFO,callback);
     }
 
+    addLoadUsersInfoInGroupListener(callback) {
+        this.on(LOAD_USERS_INFO_IN_GROUP, callback);
+    }
+
+    removeLoadUsersInfoInGroupListener(callback) {
+        this.removeListener(LOAD_USERS_INFO_IN_GROUP, callback);
+    }
+
     getGroups() {
         return groups;
     }
@@ -82,6 +100,10 @@ class GroupStore extends EventEmitter {
 
     getRooms() {
         return rooms;
+    }
+
+    getUsersInfoInGroup() {
+        return usersInfoInGroup
     }
 }
 

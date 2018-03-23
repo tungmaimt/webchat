@@ -66,6 +66,13 @@ class GroupAction {
             payload: payload
         })
     }
+    
+    loadUsersInfoInGroup(payload) {
+        Dispatcher.dispatch({
+            actionType: ActionTypes.LOAD_USERS_INFO_IN_GROUP,
+            payload: payload
+        })
+    }
 }
 
 export default new GroupAction();

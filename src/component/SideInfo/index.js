@@ -4,6 +4,7 @@ import userStore from '../../stores/userStore';
 import userAction from '../../actions/userAction';
 import groupAction from '../../actions/groupAction';
 import groupStore from '../../stores/groupStore';
+import messageAction from '../../actions/messageAction';
 import { localStorage } from '../../something';
 import Modal from '../Modal';
 
@@ -23,13 +24,14 @@ class SideInfo extends Component {
             track: 0,
             showModal: false,
             inputAddingRoomName: '',
-            notify: ''
+            notify: '',
         }
 
         this.addFriend = this.addFriend.bind(this);
         this.removeFriend = this.removeFriend.bind(this);
         this.loadRoomsInfo = this.loadRoomsInfo.bind(this);
         this.addNewRoom = this.addNewRoom.bind(this);
+        this.loadUsersInfoInGroup = this.loadUsersInfoInGroup.bind(this);
         this.updateInput = this.updateInput.bind(this);
     }
 
@@ -55,6 +57,10 @@ class SideInfo extends Component {
 
         groupStore.addLoadRoomsInfoListener(() => {
             this.loadRoomsInfo();
+        });
+
+        groupStore.addLoadUsersInfoInGroupListener(() => {
+            this.loadUsersInfoInGroup();
         })
     }
 
@@ -80,6 +86,10 @@ class SideInfo extends Component {
 
         groupStore.removeLoadRoomsInfoListener(() => {
             this.loadRoomsInfo();
+        });
+
+        groupStore.removeLoadUsersInfoInGroupListener(() => {
+            this.loadUsersInfoInGroup();
         })
     }
 
@@ -119,6 +129,28 @@ class SideInfo extends Component {
         })
     }
 
+    loadUsersInfoInGroup() {
+        let num = 0;
+        let rooms = this.state.rooms;
+        let usersInfoInGroup = groupStore.getUsersInfoInGroup();
+
+        rooms.forEach((element, index) => {
+            let count = 0;
+            element.members.forEach((element2, index2) => {
+                usersInfoInGroup.forEach((element3, index3) => {
+                    if (element3.id === element2.id) {
+                        element2.name = element3.info.name;
+                        count++;
+                        if (count === element.members.length) num++;
+                        if (num === rooms.length) {
+                            this.setState({ rooms: rooms });
+                        }
+                    }
+                });
+            });
+        });
+    }
+
     addFriend() {
         userAction.addFriend(this.state.info.id, (err, result) => {
             if (err) return console.log(err);
@@ -149,6 +181,19 @@ class SideInfo extends Component {
         })
     }
 
+    goRoom(room) {
+        let payload = {
+            room: room._id
+        }
+        messageAction.changeChatObj(room);
+        messageAction.getMessage(payload, (response) => {
+            if (response.res !== 'ok') {
+                console.log(response);
+            }
+        })
+        console.log(room);
+    }
+
     updateInput(event) {
         this.setState({
             inputAddingRoomName: event.target.value
@@ -156,11 +201,25 @@ class SideInfo extends Component {
     }
 
     render() {
+        
         if (this.state.flag) {
+            const roomMembers = (list) => {
+                return list.map((item, index) => {
+                    return (
+                        <li key={index}>
+                            {item.name}
+                        </li>
+                    )
+                })
+            }
             const listRooms = this.state.rooms.map((item, index) => {
+                const mem = roomMembers(item.members);
                 return (
-                    <li key={index}>
+                    <li key={index} onClick={() => {this.goRoom(item)}}>
                         <div>room: {item.name}</div>
+                        <ul>
+                            {mem}
+                        </ul>
                     </li>
                 )
             })

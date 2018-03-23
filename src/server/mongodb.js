@@ -400,7 +400,7 @@ class SomeMongo {
         else if (payload.from) message.$and.push({ created_date: { $gt: payload.from } });
 
         connectDb((client, db) => {
-            db.collection('messages').find(message).sort({ created_date: 1 }).limit(20).toArray((err, docs) => {
+            db.collection('messages').find(message).sort({ created_date: 1 }).toArray((err, docs) => {
                 if (err) {
                     console.log(err);
                     client.close();
@@ -618,6 +618,38 @@ class SomeMongo {
                             callback(null, result.ops[0]._id);
                         }
                     )
+                })
+            })
+        })
+    }
+
+    getUsersInfoInGroup(payload, callback) {
+        connectDb((client, db) => {
+            db.collection('groups').find({ _id: new ObjectID(payload.groupId) }).toArray((err, docs) => {
+                if (err) {
+                    console.log(err);
+                    client.close();
+                    return callback(err)
+                }
+
+                let tem = [];
+                docs[0].members.forEach((element, index) => {
+                    tem.push({ id: new ObjectID(element.id + '') });
+                    if (docs[0].members.length === tem.length) {
+                        db.collection('users_info').find(
+                            { $or: tem }, 
+                            { projection: { id: 1, 'info.name': 1 } }
+                        ).toArray((err, docs2) => {
+                            if (err) {
+                                console.log(err);
+                                client.close();
+                                return callback(err);
+                            }
+
+                            client.close();
+                            return callback(null, docs2);
+                        })
+                    }
                 })
             })
         })
