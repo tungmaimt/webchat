@@ -89,7 +89,7 @@ class InputMessage extends Component {
                 room: this.state.room,
                 message: mes
             };
-            messageAction.sendMessage(payload, () => {
+            messageAction.sendMessage(payload, (err, response) => {
                 // console.log(payload);
             });
         } 

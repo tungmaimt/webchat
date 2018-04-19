@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import SimplePeer from 'simple-peer';
 import './style.css';
 import messageStore from '../../stores/messageStore';
-import { registerHandleResponse, removeHandleResponse, localStorage } from '../../something';
+import { registerHandleResponse, removeHandleResponse, localStorage, removeAllhandleResponse } from '../../something';
 import messageAction from '../../actions/messageAction';
 import Modal from '../Modal';
 import adjustStore from '../../stores/adjustStore';
@@ -17,10 +18,16 @@ class ChatWindow extends Component {
             chatMess: [],
             title: '',
             showSetting: false,
-            room: ''
+            room: '',
+            objectType: -1,
+            isOpenVideoCall: false,
+            notify: ''
         }
 
         this.loadDirectMessage = this.loadDirectMessage.bind(this);
+        this.startVideoCall = this.startVideoCall.bind(this);
+        this.answerVideoCall = this.answerVideoCall.bind(this);
+        this.endVideoCall = this.endVideoCall.bind(this);
     }
 
     componentWillMount() {
@@ -33,10 +40,20 @@ class ChatWindow extends Component {
         });
 
         messageStore.addChangeChatObjListener(() => {
-            this.setState({
-                title: messageStore.getChatObj().name || messageStore.getChatObj().info.name,
-                room: messageStore.getChatObj().room ? messageStore.getChatObj().room.id : messageStore.getChatObj()._id
-            })
+            if (messageStore.getChatObj().info) {
+                this.setState({
+                    objectType: 0,
+                    title: messageStore.getChatObj().info.name,
+                    room: messageStore.getChatObj().room.id
+                })
+            } else {
+                this.setState({
+                    objectType: 1,
+                    title: messageStore.getChatObj().name,
+                    room: messageStore.getChatObj()._id
+                })
+            }
+            
         });
 
         adjustStore.addChangeShowSettingListener(() => {
@@ -48,6 +65,8 @@ class ChatWindow extends Component {
         registerHandleResponse('directMessage', this.loadDirectMessage);
 
         registerHandleResponse('loadMessages', this.loadMessages);
+
+        registerHandleResponse('offer', this.answerVideoCall);
     }
 
     loadMessages(result) {
@@ -60,6 +79,7 @@ class ChatWindow extends Component {
     }
 
     loadDirectMessage(result) {
+        console.log(result);
         if (!result.success) {
             console.log('cant get direct message');
             return console.log(result);
@@ -97,7 +117,100 @@ class ChatWindow extends Component {
 
         removeHandleResponse('directMessage', this.loadDirectMessage);
 
-        removeHandleResponse('loadMessages', this.loadMessages)
+        removeHandleResponse('loadMessages', this.loadMessages);
+
+        removeHandleResponse('offer', this.answerVideoCall)
+    }
+
+    answerVideoCall(result) {
+        console.log('offer');
+        console.log(result);
+        if (!result.success) return console.log('errr', result);
+        navigator.getUserMedia(
+            { video: true, audio: true },
+            (stream) => {
+                const someAPeer = new SimplePeer({ trickle: false, stream: stream });
+
+                someAPeer.on('signal', (data) => {
+                    console.log('data');
+                    let payload = {
+                        id: result.result.id,
+                        data
+                    }
+                    messageAction.answerVideoCall(payload, () => {
+                        console.log(payload);
+                    })
+                });
+
+                someAPeer.on('stream', (stream) => {
+                    console.log('stream');
+                    let video = this.refs.videoCallWindow;
+                    video.src = window.URL.createObjectURL(stream);
+                    this.setState({ isOpenVideoCall: true });
+                    video.play();
+                })
+
+                someAPeer.signal(result.result.data);
+            },
+            (err) => {
+                if (err) return console.log(err);
+            }
+        )
+        
+    }
+
+    startVideoCall(callback) {
+        if (this.state.objectType !== 0) {
+            return console.log('eu');
+        } 
+        console.log(this.refs.videoCallWindow);
+        navigator.getUserMedia(
+            { video: true, audio: true },
+            (stream) => {
+                const somePeer = new SimplePeer({ initiator: true, stream: stream, trickle: false });
+
+                registerHandleResponse('answer', (result) => {
+                    console.log('answer');
+                    console.log(result);
+                    somePeer.signal(result.result.data);
+                });
+
+                somePeer.on('signal', (data) => {
+                    let payload = {
+                        id: messageStore.getChatObj().id,
+                        data
+                    }
+                    messageAction.startVideoCall(payload, () => {
+                        console.log(payload);
+                    })
+                });
+                console.log('weee');
+
+                somePeer.on('stream', (stream) => {
+                    console.log('stream');
+                    let video = this.refs.videoCallWindow;
+                    video.src = window.URL.createObjectURL(stream);
+                    this.setState({ isOpenVideoCall: true });
+                    video.play();
+                })
+
+                callback(somePeer);
+            },
+            (err) => {
+                if (err) console.log(err);
+            }
+        )
+    }
+
+    
+
+    endVideoCall(somePeer) {
+        somePeer.destroy();
+        removeAllhandleResponse('answer', () => {
+            console.log('do nothing');
+        })
+        console.log('end');
+        this.setState({ isOpenVideoCall: false });
     }
 
     moveScroll() {
@@ -111,11 +224,13 @@ class ChatWindow extends Component {
 
     render() {
         const lm = this.state.chatMess.slice();
+        let peer = '';
         const listMessage = lm.map((item, index) => {
             let own = item.sender + '' === localStorage.get_Id() + '' ? true : false
             let da = new Date(item.created_date).toLocaleTimeString();
+            console.log(item);
             return (
-                <Message key={index} own={own} message={item.contents} date={da} />
+                <Message key={index} own={own} message={item.contents} date={da} ava={item.infoAva || 'default_ava.jpg'}/>
             )
         })
 
@@ -123,11 +238,22 @@ class ChatWindow extends Component {
             <div className="chat-window">
             <div className="top">
                 <div className="title">{this.state.title || 'Title'}</div>
-                <div className="btn" onClick={() => {
+                <div 
+                    className={this.state.objectType !== 0 ? "btn hide" : "btn"} 
+                    onClick={() => {
+                        this.startVideoCall((somePeer) => {
+                            peer = somePeer;
+                        })
+                    }}
+                >
+                    <i className="fas fa-video"></i>
+                </div>
+                <div className={this.state.objectType === -1 ? "btn hide" : "btn"} onClick={() => {
                     this.setState({ showSetting: true });
                 }}>
                     <i className="fas fa-cog setting-icon"></i>
                 </div>
+                
             </div>
             <div className="chat-content">
                 <ul>
@@ -137,15 +263,25 @@ class ChatWindow extends Component {
             <Modal isOpen={this.state.showSetting} title={this.state.title + ' setting'}>
                 <div>some</div>
             </Modal>
+            <Modal isOpen={this.state.isOpenVideoCall} title={this.state.title}>
+                <video width="400" ref="videoCallWindow"></video>
+                <div onClick={() => {
+                    this.endVideoCall(peer);
+                }}
+                >
+                    end call
+                </div>
+                <div>{this.state.notify}</div>
+            </Modal>
             </div>
         );
     }
 }
 
-const Message = ({ own, active, message, date }) => {
+const Message = ({ own, active, message, date, ava }) => {
     return (
         <div className={`message-box ${own? 'own' : ''} ${active? 'active' : ''}`}>
-            <img className="ava" src="/static/media/default_ava.cf22e533.jpg" alt=""/>
+            <img className="ava" src={"http://localhost:3000/" + ava} alt=""/>
             <div className="message">{message}</div>
             <div className="info">{date}</div>
         </div>

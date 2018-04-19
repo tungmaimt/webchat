@@ -68,6 +68,20 @@ class UserAction {
         })
     }
 
+    updateInfo(payload, callback) {
+        fetchSomething('/api/user', {
+            method: 'PUT',
+            headers: new Headers({
+                'x-access-token': localStorage.getToken(),
+                '_id': localStorage.get_Id()
+            }),
+            body: payload
+        }, (response) => {
+            if (response.err) return callback(response.err);
+            if (response.res === 'ok') callback(null, response);
+        })
+    }
+
     viewInfo(payload) {
         Dispatcher.dispatch({
             actionType: ActionTypes.VIEW_INFO,

@@ -10,6 +10,11 @@
     line-height: 45px;
 }
 
+.userinfo .r-1 .user-content {
+    display: flex;
+    flex: auto;
+}
+
 .ava {
     width: 45px;
     height: 45px;
@@ -30,6 +35,7 @@
     flex: auto;
     text-transform: uppercase;
     font-size: 16px;
+    cursor: default;
 }
 
 .userinfo .dot {
@@ -39,4 +45,30 @@
 
 .userinfo .dot.active {
     color: #4CAF50;
+}
+
+.modal-userinfo {
+    color: black;
+    display: flex;
+}
+
+.modal-userinfo .ava-box {
+    height: 234px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 234px 234px;
+    border: 1px #777 solid;
+    border-radius: 5px;
+    flex: 0 0 234px;
+    position: relative;
+}
+
+.modal-userinfo .ava-box .overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.modal-userinfo .ava-box .overlay input {
+    display: none;
 }

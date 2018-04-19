@@ -27,6 +27,7 @@
 .modal .modal-header .modal-header-title {
   flex: auto;
   font-size: 16px;
+  color: black;
 }
 
 .modal .modal-header .modal-header-btn {

@@ -11,13 +11,18 @@ class GroupActing extends Component {
         this.state = {
             inputGroupName: '',
             inputGroupDescription: '',
-            showModal: false,
+            inputJoinCode: '',
+            showModalCreateGroup: false,
+            showModalJoinGroup: false,
             notify: ' ',
         }
 
         this.updateInput = this.updateInput.bind(this);
-        this.openModal = this.openModal.bind(this);
+        this.updateInputJoinCode = this.updateInputJoinCode.bind(this);
+        this.openModalCreateGroup = this.openModalCreateGroup.bind(this);
+        this.openModalJoinGroup = this.openModalJoinGroup.bind(this);
         this.createGroup = this.createGroup.bind(this);
+        this.joinGroup = this.joinGroup.bind(this);
     }
 
     updateInput(key, event) {
@@ -32,9 +37,21 @@ class GroupActing extends Component {
         }
     }
 
-    openModal() {
+    updateInputJoinCode(input, event) {
         this.setState({
-            showModal: true
+            inputJoinCode: event.target.value
+        });
+    }
+
+    openModalCreateGroup() {
+        this.setState({
+            showModalCreateGroup: true
+        })
+    }
+
+    openModalJoinGroup() {
+        this.setState({
+            showModalJoinGroup: true
         })
     }
 
@@ -57,25 +74,53 @@ class GroupActing extends Component {
         }
     }
 
+    joinGroup() {
+        if (this.state.inputJoinCode.trim === '') {
+            this.setState({
+                notify: 'join code is blank'
+            });
+        } else {
+            let payload = {
+                joinCode: this.state.inputJoinCode
+            }
+            groupAction.joinGroup(payload, (err, result) => {
+                if (err) return console.log(err);
+                console.log(result);
+            })
+        }
+    }
+
     render() {
         return (
-            <div>
-                <div onClick={this.openModal}>create group</div>
-                <Modal isOpen={this.state.showModal} title="create new group">
+            <div className="group-act">
+                <div onClick={this.openModalCreateGroup} className="btn">create group</div>
+                <div onClick={this.openModalJoinGroup} className="btn">join group</div>
+                <Modal isOpen={this.state.showModalCreateGroup} title="create new group">
                     <div>Group name
                         <input
-                            value={this.state.inputGroupNameKey}
+                            value={this.state.inputGroupName}
                             onChange={(event) => {this.updateInput(true, event)}}
                         />
                     </div>
                     <div>Description
                         <input
-                            value={this.state.searchingKey}
+                            value={this.state.inputGroupDescription}
                             onChange={(event) => {this.updateInput(false, event)}}
                         /> 
                     </div>
                     <div onClick={this.createGroup}>create</div>
-                    <div onClick={() => {this.setState({showModal: false, notify: ' '})}}>cancel</div>
+                    <div onClick={() => {this.setState({showModalCreateGroup: false, inputGroupName: '', inputGroupDescription: '', notify: ' '})}}>cancel</div>
+                    <div>{this.state.notify}</div>
+                </Modal>
+                <Modal isOpen={this.state.showModalJoinGroup} title="join a group">
+                    <div>join code
+                        <input
+                            value={this.state.inputJoinCode}
+                            onChange={(event) => {this.updateInputJoinCode(true, event)}}
+                        />
+                    </div>
+                    <div onClick={this.joinGroup}>join</div>
+                    <div onClick={() => {this.setState({showModalJoinGroup: false, inputJoinCode: '', notify: ''})}}>cancel</div>
                     <div>{this.state.notify}</div>
                 </Modal>
             </div>

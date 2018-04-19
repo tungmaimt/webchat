@@ -26,5 +26,13 @@ const removeHandleResponse = (response, callback) => {
     })
 }
 
+const removeAllhandleResponse = (response, callback) => {
+    handlers.forEach((element, index) => {
+        if (JSON.stringify(element.response) === JSON.stringify(response)) {
+            handlers.splice(index, 1);
+        } 
+    })
+}
+
 export { handleResponse };
-export { registerHandleResponse, removeHandleResponse };
+export { registerHandleResponse, removeHandleResponse, removeAllhandleResponse };

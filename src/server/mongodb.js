@@ -43,7 +43,7 @@ class SomeMongo {
                         userInfo.info.email = '';
                         userInfo.info.phone_num = '';
                         userInfo.info.addr = '';
-                        userInfo.info.ava = '../../static/images/default_ava.jpg';
+                        userInfo.info.ava = '';
                         userInfo.created_date = Date.now();
                         userInfo.mod = false;
                         userInfo.friends = [];
@@ -87,17 +87,17 @@ class SomeMongo {
     
     updateUserInfo(payload, callback) {
         let info = {};
-        info.name = payload.name || 'wry';
-        info.birth = payload.birth || '';
-        info.fb = payload.fb || '';
-        info.email = payload.email || '';
-        info.phone_num = payload.phone_num || '';
-        info.addr = payload.addr || '';
-        info.ava = payload.ava || '../../static/images/default_ava.jpg';
+        info.name = payload.info.name || 'wry';
+        info.birth = payload.info.birth || '';
+        info.fb = payload.info.fb || '';
+        info.email = payload.info.email || '';
+        info.phone_num = payload.info.phone_num || '';
+        info.addr = payload.info.addr || '';
+        info.ava = payload.info.ava || '';
     
         connectDb((client, db) => {
             db.collection('users_info').findOneAndUpdate(
-                { id: payload.id }, 
+                { id: new ObjectID(payload.id) }, 
                 { $set: { info: info } }, 
                 (err, result) => {
                     if (err) {
@@ -105,8 +105,15 @@ class SomeMongo {
                         client.close();
                         return callback(err);
                     }
-                    client.close();
-                    callback(null, result.result);
+                    db.collection('users_info').find({ id: new ObjectID(payload.id) }).toArray((err, docs) => {
+                        if (err) {
+                            console.log(err);
+                            client.close();
+                            return callback(err);
+                        }
+                        client.close();
+                        callback(null, docs[0]);
+                    })
                 }
             )
         })
@@ -149,7 +156,7 @@ class SomeMongo {
                             client.close();
                             return callback(err);
                         }
-                        docs[0].friends.push({ id: id, tag: '', track: -2, room: roomId });
+                        docs[0].friends.push({ id: id, tag: '', track: -2, room: {id: roomId, track: -2} });
             
                         db.collection('users_info').updateOne({ _id: docs[0]._id }, {
                             $set: {
@@ -536,6 +543,7 @@ class SomeMongo {
     createGroup(payload, callback) {
         let group = {};
         group.name = payload.groupName;
+        group.join_code = payload.joinCode;
         group.description = payload.groupDescription;
         group.members = [];
         group.admin = payload.id;
@@ -572,6 +580,55 @@ class SomeMongo {
                 })
             })
         });
+    }
+
+    joinGroup(payload, callback) {
+        connectDb((client, db) => {
+            db.collection('groups').find({ join_code: payload.joinCode }).toArray((err, docs) => {
+                if (err) {
+                    console.log(err);
+                    client.close();
+                    return callback(err);
+                }
+
+                if (docs.length === 0) {
+                    client.close();
+                    return callback(null, false);
+                } else {
+                    let count = 0;
+                    let check = true;
+                    docs[0].members.forEach((element, index) => {
+                        if (element.id + '' === payload.id) check = false;
+                        count++;
+                        if (count === docs[0].members.length) {
+                            if (check) {
+                                docs[0].members.push({ id: payload.id, join_date: Date.now() });
+                                db.collection('groups').updateOne(
+                                    { _id: docs[0]._id },
+                                    { $set: { members: docs[0].members } },
+                                    (err, result) => {
+                                        if (err) {
+                                            console.log(err);
+                                            client.close();
+                                            return callback(err);
+                                        }
+            
+                                        client.close();
+                                        return callback(null, docs[0]);
+                                    }
+                                )
+                            } else {
+                                client.close();
+                                return callback(null, -1);
+                            }
+                        }
+                    });
+
+                    
+                }
+
+            })
+        })
     }
     
     getGroupByUser(payload, callback) {
@@ -651,6 +708,29 @@ class SomeMongo {
                         })
                     }
                 })
+            })
+        })
+    }
+
+    getMultiUsersInfo(payload, callback) {
+        if (payload.length <= 0) {
+            return callback(null, []);
+        }
+        let filter = payload.map((item, index) => {
+            return {
+                id: new ObjectID(item.id)
+            }
+        })
+        connectDb((client, db) => {
+            db.collection('users_info').find({ $or: filter }).toArray((err, docs) => {
+                if (err) {
+                    console.log(err);
+                    client.close()
+                    return callback(err);
+                }
+
+                client.close();
+                return callback(null, docs);
             })
         })
     }

@@ -98,7 +98,7 @@ const Group = ({ id, ma, groupName, onClick, online, viewInfo, groupDescription 
     return (
         <li className="group-item" ma={ma} >
             <div className="group-view" onClick={() => {onClick(ma, id)}}>
-                <img className="ava" src="/static/media/default_ava.cf22e533.jpg" alt="ava"/>
+                <img className="ava" src="http://localhost:3000/default_ava.jpg" alt="ava"/>
                 <div className="group-content">
                     <div className="groupName">{groupName}</div>
                     <div className="group-message">

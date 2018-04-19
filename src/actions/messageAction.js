@@ -28,6 +28,26 @@ class MessageAction {
         callback();
     }
 
+    startVideoCall(payload, callback) {
+        socket.emit('offer', {
+            id: localStorage.get_Id(),
+            token: localStorage.getToken(),
+            receivedId: payload.id,
+            data: payload.data
+        });
+        callback();
+    }
+
+    answerVideoCall(payload, callback) {
+        socket.emit('answer', {
+            id: localStorage.get_Id(),
+            token: localStorage.getToken(),
+            receivedId: payload.id,
+            data: payload.data
+        });
+        callback();
+    }
+
     changeChatObj(payload) {
         Dispatcher.dispatch({
             actionType: ActionTypes.CHANGE_CHATOBJ,

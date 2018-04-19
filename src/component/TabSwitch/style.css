@@ -8,6 +8,18 @@
     flex-grow: auto;
 }
 
+.tabSwitch .tab .tab-item {
+    width: 135px;
+    padding: 6px 0;
+    text-align: center;
+    color: #fff;
+    cursor: default;
+}
+
+.tabSwitch .tab .tab-item:hover {
+    background: rgba(0, 0, 0, 0.12);
+}
+
 .hide {
     display: none;
 }

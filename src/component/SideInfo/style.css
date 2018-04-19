@@ -5,12 +5,109 @@
 .sideInfo {
     width: 270px;
     height: 100vh;
-    background-color: aquamarine;
+    background-color: #2d3d4c;
+    color: #fff;
     padding: 0 35px;
 }
 
-.sideInfo .side-ava img{
+.sideInfo .side-ava img {
     width: 200px;
     height: 200px;
     border-radius: 5%;
+}
+
+.sideInfo .sideInfo-content {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.sideInfo .modal {
+    color: #000;
+}
+
+.sideInfo .group-opt {
+    display: flex;
+    border-top: 1px solid #3e4e5e;
+    border-bottom: 1px solid #3e4e5e;
+}
+
+.sideInfo .group-opt .opt-item {
+    text-align: center;
+    width: 100px;
+    padding: 6px 0;
+}
+
+.sideInfo .group-opt .opt-item:hover {
+    background-color: #5f5f5d;
+    cursor: default;
+}
+
+.sideInfo .group-name {
+    font-size: 30px;
+    text-align: center;
+    margin: 2px;
+    cursor: default;
+}
+
+.sideInfo .group-desc {
+    color: #8caed1;
+    text-align: center;
+    margin: 2px;
+    cursor: default;
+}
+
+.sideInfo .group-code {
+    color: #8caed1;
+    margin: 2px;
+    padding-bottom: 6px;
+}
+
+.sideInfo .btn {
+    text-align: center;
+    margin: 6px 0;
+    background-color: #3e4e5e;
+    border-radius: 3px;
+    padding: 3px 0;
+    cursor: default;
+}
+
+.sideInfo .btn:hover {
+    background-color: #5f5f5d;
+}
+
+.text-code {
+    color: #0d85fd;
+}
+
+.btn-opt {
+    margin: 2px;
+    background-color: #3e4e5e;
+    border-radius: 3px;
+    padding: 0px 5px;
+    cursor: default;
+}
+
+.btn-opt:hover {
+    background-color: #5f5f5d;
+}
+
+.btn-opt-static {
+    margin: 2px;
+    background-color: #3e4e5e;
+    border-radius: 3px;
+    padding: 0px 5px;
+    cursor: default;
+}
+
+.room {
+    padding: 3px 0px;
+}
+
+.roomInfo {
+    display: block;
+    padding-left: 10px;
+}
+
+.room-name:hover {
+    color: #cfcfcf;
 }

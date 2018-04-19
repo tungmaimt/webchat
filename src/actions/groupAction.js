@@ -18,6 +18,19 @@ class GroupAction {
         })
     }
 
+    joinGroup(payload, callback) {
+        fetchSomething('/api/group/?code=' + payload.joinCode, {
+            method: 'PUT',
+            headers: new Headers({
+                'x-access-token': localStorage.getToken(),
+                '_id': localStorage.get_Id()
+            })
+        }, (response) => {
+            if (response.err) return callback(response.err);
+            return callback(null, response);
+        })
+    }
+
     getRoomsInfo(payload, callback) {
         fetchSomething('/api/group/room?id=' + payload, {
             method: 'GET',

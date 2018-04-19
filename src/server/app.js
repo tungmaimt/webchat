@@ -17,7 +17,7 @@ if (!fs.existsSync(path.join(__dirname, '../../.env.local'))){
 
 const router = require('./routes/router');
 const { mapSocketId, unMapSocketId, socketMap } = require('./socketMapping');
-const veryfyToken = require('./verifyToken');
+const verifyToken = require('./verifyToken');
 
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +25,7 @@ const scServer = socketclusterServer.attach(server);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'users_ava')));
 
 app.use('/', router);
 
@@ -45,7 +46,7 @@ scServer.on('connection', (socket) => {
     });
 
     socket.on('wcMessage', (data) => {
-        veryfyToken.verify(data.token, (err, decoded) => {
+        verifyToken.verify(data.token, (err, decoded) => {
             if (err) return socket.emit('error', { err });
         });
         let payload = {
@@ -60,8 +61,38 @@ scServer.on('connection', (socket) => {
             data: { payload }
         }, (err) => {
             if (err) console.log(err);
+        });
+    });
+
+    socket.on('offer', (data) => {
+        verifyToken.verify(data.token, (err, decoded) => {
+            if (err) return socket.emit('error', { err });
+        });
+        console.log('offer');
+        queue.push({
+            topic: queue.TOPIC.message,
+            stream: queue.STREAM,
+            type: queue.TYPE.OFFER,
+            data: { payload: data }
+        }, (err) => {
+            if (err) console.log(err);
         })
-    })
+    });
+
+    socket.on('answer', (data) => {
+        verifyToken.verify(data.token, (err, decoded) => {
+            if (err) return socket.emit('error', { err });
+        });
+        console.log('answer');
+        queue.push({
+            topic: queue.TOPIC.message,
+            stream: queue.STREAM,
+            type: queue.TYPE.ANSWER,
+            data: { payload: data }
+        }, (err) => {
+            if (err) console.log(err);
+        })
+    });
 });
 
 

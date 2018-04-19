@@ -62,6 +62,23 @@ router.post('/', (req, res) => {
     })
 });
 
-
+router.put('/', (req, res) => {
+    let payload = {
+        id: req.headers['_id'],
+        joinCode: req.query.code
+    }
+    queue.push({
+        topic: queue.TOPIC.GROUP_ACTION,
+        stream: queue.STREAM,
+        type: queue.TYPE.JOIN_GROUP,
+        data: { payload }
+    }, (err) => {
+        if (err) {
+            res.json({ err });
+            return console.log(err);
+        }
+        res.json({ res: 'ok' });
+    })
+})
 
 module.exports = router;

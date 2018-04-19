@@ -181,7 +181,7 @@ class SideInfo extends Component {
         })
     }
 
-    goRoom(room) {
+    goRoom(room, roomIndex) {
         let payload = {
             room: room._id
         }
@@ -190,6 +190,10 @@ class SideInfo extends Component {
             if (response.res !== 'ok') {
                 console.log(response);
             }
+        });
+        this.state.rooms.forEach((element, index) => {
+            if (index !== roomIndex) this.refs['room' + index].className = 'hide';
+            else this.refs['room' + roomIndex].className = 'roomInfo';
         })
         console.log(room);
     }
@@ -215,25 +219,33 @@ class SideInfo extends Component {
             const listRooms = this.state.rooms.map((item, index) => {
                 const mem = roomMembers(item.members);
                 return (
-                    <li key={index} onClick={() => {this.goRoom(item)}}>
-                        <div>room: {item.name}</div>
-                        <ul>
+                    <li key={index} onClick={() => {this.goRoom(item, index)}} className="room">
+                        <div className="room-name"># {item.name}</div>
+                        <ul className="hide" ref={"room" + index}>
                             {mem}
                         </ul>
                     </li>
                 )
             })
+            console.log(this.state.group);
             return (
                 <div className={this.state.isShow ? "sideInfo" : "hide"}>
-                    <div onClick={() => {this.setState({ isShow: false })}}>close</div>
-                    <div>
-                        {localStorage.get_Id() + '' === this.state.group.admin + '' ? 'Disband' : 'Leave'}
+                    <div className="group-name">{this.state.group.name}</div>
+                    <div className="group-desc"><i>desc: {this.state.group.description}</i></div>
+                    <div className="group-code"><span className="text-code">join code:</span> {this.state.group.join_code}</div>
+                    <div className="group-opt">
+                        <div onClick={() => {this.setState({ isShow: false })}} className="opt-item">
+                            close
+                        </div>
+                        <div className="opt-item">
+                            {localStorage.get_Id() + '' === this.state.group.admin + '' ? 'Disband' : 'Leave'}
+                        </div>
                     </div>
-                    <div>name: {this.state.group.name}</div>
-                    <div>desc: {this.state.group.description}</div>
+                    
                     <Modal 
                         isOpen={this.state.showModal}
                         title='Add new room'
+                        className="modal"
                     >
                         <div>
                             <input 
@@ -249,7 +261,10 @@ class SideInfo extends Component {
                         <div onClick={() => {this.setState({ showModal: false })}}>cancel</div>
                         <div>{this.state.notify}</div>
                     </Modal>
-                    <div onClick={() => {this.setState({ showModal: true, inputAddingRoomName: '', notify: '' })}}>
+                    <div 
+                        onClick={() => {this.setState({ showModal: true, inputAddingRoomName: '', notify: '' })}}
+                        className="btn"
+                    >
                         add new room
                     </div>
                     <ul>
@@ -260,14 +275,14 @@ class SideInfo extends Component {
         } else {
             return (
                 <div className={this.state.isShow ? "sideInfo" : "hide"}>
-                    <div onClick={() => {this.setState({ isShow: false })}}>close</div>
-                    <div className="side-ava"><img src="/static/media/default_ava.cf22e533.jpg" alt=""/></div>
+                    <div className="side-ava"><img src={"http://localhost:3000/" + (this.state.info.info.ava || 'default_ava.jpg')} alt="ava"/></div>
                     <div className="sideInfo-content">
-                        <div>Name: {this.state.info.info.name || ''}</div>
+                        <div>{this.state.info.info.name}</div>
+                        {/* <div>Name: {this.state.info.info.name || ''}</div>
                         <div>Addr: {this.state.info.info.addr || ''}</div>
                         <div>Birth Day: {this.state.info.info.birth || ''}</div>
                         <div>Email: {this.state.info.info.email || ''}</div>
-                        <div>Facebook: {this.state.info.info.fb || ''}</div>
+                        <div>Facebook: {this.state.info.info.fb || ''}</div> */}
                     </div>
                     <Option
                         addAction={this.addFriend}
@@ -278,7 +293,7 @@ class SideInfo extends Component {
                         track={this.state.track}
                         isFriend={this.state.isFriend}
                     />
-                    
+                    <div onClick={() => {this.setState({ isShow: false })}}>close</div>
                 </div>
             )
         }
@@ -288,14 +303,18 @@ class SideInfo extends Component {
 const Option = ({ addAction, removeAction, acceptAction, track, isFriend }) => {
     return (
         <div className="option">
-            <div onClick={isFriend ? removeAction : addAction}>
+            <div onClick={isFriend ? removeAction : addAction} className="btn-opt">
                 {!isFriend ? "add friend" : "remove friend"}
             </div>
-            <div onClick={track === -2 ? () => {console.log('object')} : acceptAction}>
-                {track === -2 ? 'some' : 'accept'}
+            <div 
+                onClick={track === -2 ? () => {console.log('object')} : acceptAction} 
+                className={track === -2 ? "btn-opt-static" : "btn-opt"}
+            
+            >
+                {track === -2 ? 'wait for answer' : 'accept'}
             </div>
-            <div>block</div>
-            <div>report</div>
+            <div className="btn-opt">block</div>
+            <div className="btn-opt">report</div>
         </div>
     )
     

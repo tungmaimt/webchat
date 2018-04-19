@@ -136,6 +136,7 @@ class Contacts extends Component {
                     viewInfo={this.viewInfo}
                     optId={this.state.optId === '' ? '' : index}
                     inv={item.inv}
+                    ava={'http://localhost:3000/' + (item.info.ava || 'default_ava.jpg')}
                 />
             )
         }) : this.state.searchResult.map((item, index) => {
@@ -148,6 +149,7 @@ class Contacts extends Component {
                     onClick={this.viewInfo}
                     viewInfo={false}
                     optId={this.state.optId === '' ? '' : index}
+                    ava={'http://localhost:3000/' + (item.info.ava || 'default_ava.jpg')}
                 />
             )
         });
@@ -170,11 +172,11 @@ class Contacts extends Component {
     }
 }
 
-const Contact = ({ room, username, online, ma, onClick, id, viewInfo, optId, inv }) => {
+const Contact = ({ room, username, online, ma, onClick, id, viewInfo, optId, inv, ava }) => {
     return (
         <li className="contact-item" ma={id} >
             <div className="contact-view" onClick={() => {onClick(ma, id, room)}}>
-                <img className="ava" src="/static/media/default_ava.cf22e533.jpg" alt="ava"/>
+                <img className="ava" src={ava} alt="ava"/>
                 <div className="contact-content">
                     <div className="username">{username}</div>
                     <div className="contact-message">

@@ -27,10 +27,10 @@ class TabSwitch extends Component {
         return (
             <div className="tabSwitch">
                 <div className="tab">
-                    <div onClick={() => {this.changeTab(0)}}>
+                    <div onClick={() => {this.changeTab(0)}} className="tab-item">
                         Contacts
                     </div>
-                    <div onClick={() => {this.changeTab(1)}}>
+                    <div onClick={() => {this.changeTab(1)}} className="tab-item">
                         Groups
                     </div>
                 </div>
@@ -39,7 +39,7 @@ class TabSwitch extends Component {
                     <Contacts />
                 </div>
                 <div className={this.state.show === 1 ? 'active' : 'hide'}>
-                    <Searchbar flag={false} />
+                    {/* <Searchbar flag={false} /> */}
                     <GroupActing />
                     <Groups />
                 </div>
