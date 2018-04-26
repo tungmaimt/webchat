@@ -55,6 +55,19 @@ class UserAction {
         })
     }
 
+    answerFriend(payload, callback) {
+        fetchSomething('/api/user/friend?id=' + payload + '&action=answer', {
+            method: 'PUT',
+            headers: new Headers({
+                'x-access-token': localStorage.getToken(),
+                '_id': localStorage.get_Id()
+            })
+        }, (response) => {
+            if (response.err) return callback(response.err);
+            if (response.res === 'ok') callback(null, response);
+        })
+    }
+
     removeFriend(payload, callback) {
         fetchSomething('/api/user/friend?id=' + payload + '&action=remove', {
             method: 'PUT',

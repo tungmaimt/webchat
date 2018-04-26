@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './style.css';
 import messageAction from '../../actions/messageAction';
 import messageStore from '../../stores/messageStore';
+import emo from '../../emo';
 
 class InputMessage extends Component {
 
@@ -11,11 +12,16 @@ class InputMessage extends Component {
         this.state = {
             inputMessage: '',
             chatObj: {},
-            room: ''
+            room: '',
+            isShowEmoList: false,
+            emoType: 1,
         }
 
         this.sendFriendMessage = this.sendFriendMessage.bind(this);
         this.pressFriendMessage = this.pressFriendMessage.bind(this);
+        this.showEmoList = this.showEmoList.bind(this);
+        this.selectEmoType = this.selectEmoType.bind(this);
+        this.insertEmo = this.insertEmo.bind(this);
         this.updateInput = this.updateInput.bind(this);
     }
 
@@ -100,7 +106,38 @@ class InputMessage extends Component {
         this.moveScroll();
     }
 
+    showEmoList() {
+        this.setState({
+            isShowEmoList: !this.state.isShowEmoList
+        })
+    }
+
+    selectEmoType(type) {
+        this.setState({
+            emoType: type
+        })
+    }
+
+    insertEmo(emo) {
+        console.log(emo);
+        this.setState({
+            inputMessage: this.state.inputMessage + emo
+        })
+    }
+
     render() {
+        const listEmo = emo[this.state.emoType].emoj.map((item, index) => {
+            return <td 
+                id={"emoj-" + index} 
+                key={index} 
+                className="emo-item"
+                ref={"emoj-" + index}
+                onClick={() => {this.insertEmo(item)}}
+            >
+                {item}
+            </td>
+        });
+
         return (
             <div className="input-message">
                 <textarea name='inputMessage'
@@ -110,13 +147,38 @@ class InputMessage extends Component {
                     onKeyUp={this.pressFriendMessage}
                 ></textarea>
 
-                <div className="btn">
+                <div className="btn" onClick={this.showEmoList}>
                     <i className="far fa-smile"></i>
                 </div>
                 <div className="btn" 
                     ref={(some) => {this.btnPlane = some}}
                 >
                     <i className="fab fa-telegram-plane"></i>
+                </div>
+                <div className={this.state.isShowEmoList ? "emo-list" : "hide"}>
+                    <div>
+                        <ul>
+                            <li id="emo-type-1" onClick={() => {this.selectEmoType(0)}}>bear</li>
+                            <li id="emo-type-2" onClick={() => {this.selectEmoType(1)}}>angry</li>
+                            <li id="emo-type-3" onClick={() => {this.selectEmoType(2)}}>why</li>
+                            <li id="emo-type-4" onClick={() => {this.selectEmoType(3)}}>bow</li>
+                        </ul>
+                        <div>
+                            <table>
+                                <tbody>
+                                <tr>
+                                    {listEmo.slice(0, 3)}
+                                </tr>
+                                <tr>
+                                    {listEmo.slice(3, 6)}
+                                </tr>
+                                <tr>
+                                    {listEmo.slice(6, 9)}
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         );

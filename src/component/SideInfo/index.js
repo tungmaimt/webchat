@@ -28,10 +28,15 @@ class SideInfo extends Component {
         }
 
         this.addFriend = this.addFriend.bind(this);
+        this.answerFriend = this.answerFriend.bind(this);
         this.removeFriend = this.removeFriend.bind(this);
         this.loadRoomsInfo = this.loadRoomsInfo.bind(this);
         this.addNewRoom = this.addNewRoom.bind(this);
+        this.loadGroupInfo = this.loadGroupInfo.bind(this);
         this.loadUsersInfoInGroup = this.loadUsersInfoInGroup.bind(this);
+        this.reCode = this.reCode.bind(this);
+        this.disbandGroup = this.disbandGroup.bind(this);
+        this.leaveGroup = this.leaveGroup.bind(this);
         this.updateInput = this.updateInput.bind(this);
     }
 
@@ -50,6 +55,10 @@ class SideInfo extends Component {
                 })
             }
         });
+
+        groupStore.addLoadGroupsInfoListener(() => {
+            this.loadGroupInfo();
+        })
 
         groupStore.addViewGroupListener(() => {
             this.viewGroup();
@@ -80,6 +89,10 @@ class SideInfo extends Component {
             }
         });
 
+        groupStore.removeLoadGroupsInfoListener(() => {
+            this.loadGroupInfo();
+        })
+
         groupStore.removeViewGroupListener(() => {
             this.viewGroup();
         });
@@ -90,6 +103,16 @@ class SideInfo extends Component {
 
         groupStore.removeLoadUsersInfoInGroupListener(() => {
             this.loadUsersInfoInGroup();
+        })
+    }
+
+    loadGroupInfo() {
+        groupStore.getGroups().forEach((element, index) => {
+            if (element._id + '' === this.state.group._id + '') {
+                this.setState({
+                    group: element
+                })
+            }
         })
     }
 
@@ -157,6 +180,12 @@ class SideInfo extends Component {
         });
     }
 
+    answerFriend() {
+        userAction.answerFriend(this.state.info.id, (err, result) => {
+            if (err) return console.log(err);
+        })
+    }
+
     removeFriend() {
         userAction.removeFriend(this.state.info.id, (err, result) => {
             if (err) return console.log(err);
@@ -198,6 +227,43 @@ class SideInfo extends Component {
         console.log(room);
     }
 
+    reCode() {
+        let payload = {
+            groupId: this.state.group._id,
+            oldCode: this.state.group.join_code
+        }
+        groupAction.reCode(payload, (err, response) => {
+            if (err) return console.log(err);
+            if (response) console.log(response);
+        })
+    }
+
+    disbandGroup() {
+        let payload = {
+            groupId: this.state.group._id,
+        }
+        groupAction.disbandGroup(payload, (err, response) => {
+            if (err) return console.log(err);
+            console.log(response);
+        });
+        this.setState({
+            isShow: false
+        })
+    }
+
+    leaveGroup() {
+        let payload = {
+            groupId: this.state.group._id,
+        }
+        groupAction.leaveGroup(payload, (err, response) => {
+            if (err) return console.log(err);
+            console.log(response);
+        });
+        this.setState({
+            isShow: false
+        })
+    }
+
     updateInput(event) {
         this.setState({
             inputAddingRoomName: event.target.value
@@ -232,12 +298,24 @@ class SideInfo extends Component {
                 <div className={this.state.isShow ? "sideInfo" : "hide"}>
                     <div className="group-name">{this.state.group.name}</div>
                     <div className="group-desc"><i>desc: {this.state.group.description}</i></div>
-                    <div className="group-code"><span className="text-code">join code:</span> {this.state.group.join_code}</div>
+                    <div className="group-code">
+                        <div className="group-text">
+                            <span className="text-code">join code:</span> {this.state.group.join_code}
+                        </div>
+                        <div className='reCode' onClick={this.reCode}>
+                            <i className="fas fa-redo-alt"></i>
+                        </div>
+                    </div>
                     <div className="group-opt">
                         <div onClick={() => {this.setState({ isShow: false })}} className="opt-item">
                             close
                         </div>
-                        <div className="opt-item">
+                        <div 
+                            className="opt-item" 
+                            onClick={localStorage.get_Id() + '' === this.state.group.admin + '' ? 
+                            this.disbandGroup : 
+                            this.leaveGroup}
+                        >
                             {localStorage.get_Id() + '' === this.state.group.admin + '' ? 'Disband' : 'Leave'}
                         </div>
                     </div>
@@ -287,9 +365,7 @@ class SideInfo extends Component {
                     <Option
                         addAction={this.addFriend}
                         removeAction={this.removeFriend}
-                        acceptAction={() => {
-                            console.log('accept');
-                        }}
+                        acceptAction={this.answerFriend}
                         track={this.state.track}
                         isFriend={this.state.isFriend}
                     />
@@ -308,7 +384,7 @@ const Option = ({ addAction, removeAction, acceptAction, track, isFriend }) => {
             </div>
             <div 
                 onClick={track === -2 ? () => {console.log('object')} : acceptAction} 
-                className={track === -2 ? "btn-opt-static" : "btn-opt"}
+                className={!isFriend ? "hide" : track === -2 ? "btn-opt-static" : track === 0 ? "hide" : "btn-opt"}
             
             >
                 {track === -2 ? 'wait for answer' : 'accept'}

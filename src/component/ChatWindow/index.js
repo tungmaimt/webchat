@@ -24,6 +24,8 @@ class ChatWindow extends Component {
             notify: ''
         }
 
+        this.somePeer = {};
+
         this.loadDirectMessage = this.loadDirectMessage.bind(this);
         this.startVideoCall = this.startVideoCall.bind(this);
         this.answerVideoCall = this.answerVideoCall.bind(this);
@@ -129,9 +131,9 @@ class ChatWindow extends Component {
         navigator.getUserMedia(
             { video: true, audio: true },
             (stream) => {
-                const someAPeer = new SimplePeer({ trickle: false, stream: stream });
+                this.somePeer = new SimplePeer({ trickle: false, stream: stream });
 
-                someAPeer.on('signal', (data) => {
+                this.somePeer.on('signal', (data) => {
                     console.log('data');
                     let payload = {
                         id: result.result.id,
@@ -142,7 +144,7 @@ class ChatWindow extends Component {
                     })
                 });
 
-                someAPeer.on('stream', (stream) => {
+                this.somePeer.on('stream', (stream) => {
                     console.log('stream');
                     let video = this.refs.videoCallWindow;
                     video.src = window.URL.createObjectURL(stream);
@@ -150,7 +152,7 @@ class ChatWindow extends Component {
                     video.play();
                 })
 
-                someAPeer.signal(result.result.data);
+                this.somePeer.signal(result.result.data);
             },
             (err) => {
                 if (err) return console.log(err);
@@ -159,7 +161,7 @@ class ChatWindow extends Component {
         
     }
 
-    startVideoCall(callback) {
+    startVideoCall() {
         if (this.state.objectType !== 0) {
             return console.log('eu');
         } 
@@ -167,15 +169,15 @@ class ChatWindow extends Component {
         navigator.getUserMedia(
             { video: true, audio: true },
             (stream) => {
-                const somePeer = new SimplePeer({ initiator: true, stream: stream, trickle: false });
+                this.somePeer = new SimplePeer({ initiator: true, stream: stream, trickle: false });
 
                 registerHandleResponse('answer', (result) => {
                     console.log('answer');
                     console.log(result);
-                    somePeer.signal(result.result.data);
+                    this.somePeer.signal(result.result.data);
                 });
 
-                somePeer.on('signal', (data) => {
+                this.somePeer.on('signal', (data) => {
                     let payload = {
                         id: messageStore.getChatObj().id,
                         data
@@ -184,17 +186,14 @@ class ChatWindow extends Component {
                         console.log(payload);
                     })
                 });
-                console.log('weee');
 
-                somePeer.on('stream', (stream) => {
+                this.somePeer.on('stream', (stream) => {
                     console.log('stream');
                     let video = this.refs.videoCallWindow;
                     video.src = window.URL.createObjectURL(stream);
                     this.setState({ isOpenVideoCall: true });
                     video.play();
                 })
-
-                callback(somePeer);
             },
             (err) => {
                 if (err) console.log(err);
@@ -204,8 +203,8 @@ class ChatWindow extends Component {
 
     
 
-    endVideoCall(somePeer) {
-        somePeer.destroy();
+    endVideoCall() {
+        this.somePeer.destroy();
         removeAllhandleResponse('answer', () => {
             console.log('do nothing');
         })
@@ -224,11 +223,9 @@ class ChatWindow extends Component {
 
     render() {
         const lm = this.state.chatMess.slice();
-        let peer = '';
         const listMessage = lm.map((item, index) => {
             let own = item.sender + '' === localStorage.get_Id() + '' ? true : false
             let da = new Date(item.created_date).toLocaleTimeString();
-            console.log(item);
             return (
                 <Message key={index} own={own} message={item.contents} date={da} ava={item.infoAva || 'default_ava.jpg'}/>
             )
@@ -241,9 +238,7 @@ class ChatWindow extends Component {
                 <div 
                     className={this.state.objectType !== 0 ? "btn hide" : "btn"} 
                     onClick={() => {
-                        this.startVideoCall((somePeer) => {
-                            peer = somePeer;
-                        })
+                        this.startVideoCall()
                     }}
                 >
                     <i className="fas fa-video"></i>
@@ -266,7 +261,7 @@ class ChatWindow extends Component {
             <Modal isOpen={this.state.isOpenVideoCall} title={this.state.title}>
                 <video width="400" ref="videoCallWindow"></video>
                 <div onClick={() => {
-                    this.endVideoCall(peer);
+                    this.endVideoCall();
                 }}
                 >
                     end call

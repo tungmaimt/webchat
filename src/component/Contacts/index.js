@@ -42,7 +42,7 @@ class Contacts extends Component {
                 friends: userStore.getFriendInfo()
             })
             if (this.state.userInfo.id) {
-                let tem = this.state.friends
+                let tem = this.state.friends;
                 this.state.userInfo.friends.forEach((element, index) => {
                     tem.forEach((element1, index) => {
                         if (element.id === element1.id) {
@@ -179,7 +179,7 @@ const Contact = ({ room, username, online, ma, onClick, id, viewInfo, optId, inv
                 <img className="ava" src={ava} alt="ava"/>
                 <div className="contact-content">
                     <div className="username">{username}</div>
-                    <div className="contact-message">
+                    <div className={inv === 0 ? "hide" : "contact-message"}>
                         {inv === -1 ? 'wait for reply' : inv === -2 ? username + ' want to add friend' : 'some'}
                     </div>
                 </div>

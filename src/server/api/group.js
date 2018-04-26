@@ -79,6 +79,45 @@ router.put('/', (req, res) => {
         }
         res.json({ res: 'ok' });
     })
+});
+
+router.put('/:groupId', (req, res) => {
+    let payload = {
+        id: req.headers['_id'],
+        groupId: req.params.groupId,
+        oldCode: req.query.oldCode
+    }
+    queue.push({
+        topic: queue.TOPIC.GROUP_ACTION,
+        stream: queue.STREAM,
+        type: queue.TYPE.RE_JOINING_CODE,
+        data: { payload }
+    }, (err) => {
+        if (err) {
+            res.json({ err });
+            return console.log(err);
+        }
+        res.json({ res: 'ok' });
+    })
+});
+
+router.delete('/', (req, res) => {
+    let payload = {
+        id: req.headers['_id'],
+        groupId: req.query.groupId
+    }
+    queue.push({
+        topic: queue.TOPIC.GROUP_ACTION,
+        stream: queue.STREAM,
+        type: queue.TYPE.DISBAND_GROUP,
+        data: { payload }
+    }, (err) => {
+        if (err) {
+            res.json({ err });
+            return console.log(err);
+        }
+        res.json({ res: 'ok' });
+    })
 })
 
 module.exports = router;

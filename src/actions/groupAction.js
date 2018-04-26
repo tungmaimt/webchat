@@ -59,6 +59,36 @@ class GroupAction {
         })
     }
 
+    reCode(payload, callback) {
+        fetchSomething('/api/group/' + payload.groupId + '?oldCode=' + payload.oldCode, {
+            method: 'PUT',
+            headers: new Headers({
+                'x-access-token': localStorage.getToken(),
+                '_id': localStorage.get_Id()
+            })
+        }, (response) => {
+            if (response.err) return callback(response.err);
+            return callback(null, response);
+        })
+    }
+
+    disbandGroup(payload, callback) {
+        fetchSomething('/api/group?groupId=' + payload.groupId, {
+            method: 'DELETE',
+            headers: new Headers({
+                'x-access-token': localStorage.getToken(),
+                '_id': localStorage.get_Id()
+            })
+        }, (response) => {
+            if (response.err) return callback(response.err);
+            return callback(null, response);
+        })
+    }
+
+    leaveGroup(payload, callback) {
+        console.log(payload);
+    }
+
     loadGroupsInfo(payload) {
         Dispatcher.dispatch({
             actionType: ActionTypes.LOAD_GROUPS_INFO,

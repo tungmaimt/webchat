@@ -148,6 +148,16 @@ router.put('/friend/', (req, res) => {
             if (err) return res.json({ err });
             res.json({ res: 'ok' });
         });
+    } if (req.query.action === 'answer') {
+        queue.push({
+            topic: queue.TOPIC.USER_ACTION,
+            stream: queue.STREAM,
+            type: queue.TYPE.ANSWER_FRIEND,
+            data: { payload }
+        }, (err) => {
+            if (err) return res.json({ err });
+            res.json({ res: 'ok' });
+        })
     } else {
         queue.push({
             topic: queue.TOPIC.USER_ACTION,

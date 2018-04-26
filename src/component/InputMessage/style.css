@@ -1,7 +1,11 @@
+.hide {
+    display: none;
+}
+
 .input-message {
     width: 100%;
     height: 60px;
-
+    position: relative;
 }
 
 .input-message input {
@@ -32,4 +36,28 @@
     flex: auto;
     resize: none;
     border: none;
+}
+
+.input-message .emo-list {
+    padding: 5px;
+    position: absolute;
+    bottom: 48px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    color: #da67ca;
+}
+
+.input-message .emo-list ul {
+    display: flex;
+}
+
+.input-message .emo-list ul li {
+    width: 50px;
+}
+
+.input-message .emo-list .emo-item {
+    padding: 0 10px;
+    text-align: center;
+    cursor: pointer;
 }

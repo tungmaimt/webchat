@@ -60,6 +60,20 @@
     color: #8caed1;
     margin: 2px;
     padding-bottom: 6px;
+    display: flex;
+}
+
+.sideInfo .group-code .group-text {
+    flex-grow: 1;
+}
+
+.sideInfo .group-code .reCode:hover {
+    color: #0d85fd;
+}
+
+.sideInfo .group-code .reCode:active {
+    font-size: 15px;
+    user-select: none;
 }
 
 .sideInfo .btn {

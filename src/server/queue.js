@@ -1,5 +1,7 @@
 const rsq = require('rsq');
 
+const joiningCodeGen = require('./joiningCodeGen');
+
 const REDIS_CONNECT_URL = process.env.REDIS_CONNECT_URL;
 
 const queue = new rsq(
@@ -31,9 +33,12 @@ const TYPE = {
     SEARCH: 'search',
     GET_TO_VIEW_INFO: 'GET_TO_VIEW_INFO',
     ADD_FRIEND: 'ADD_FRIEND',
+    ANSWER_FRIEND: 'ANSWER_FRIEND',
     REMOVE_FRIEND: 'REMOVE_FRIEND',
     CREATE_GROUP: 'CREATE_GROUP',
+    DISBAND_GROUP: 'DISBAND_GROUP',
     JOIN_GROUP: 'JOIN_GROUP',
+    RE_JOINING_CODE: 'RE_JOINING_CODE',
     GET_ROOMS_INFO: 'GET_ROOMS_INFO',
     ADD_NEW_ROOM: 'ADD_NEW_ROOM',
     UPDATE_USER_INFO: 'UPDATE_USER_INFO',
@@ -229,6 +234,42 @@ const registerQueue = (socket) => {
     );
 
     queue.registHandle(
+        [ { topic: TOPIC.USER_ACTION, stream: STREAM, type: TYPE.ANSWER_FRIEND } ],
+        (message, done) => {
+            mongodb.answerFriend(message.data.payload, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return done();
+                }
+
+                result.forEach((element, index) => {
+                    mongodb.getFriendsInfo(element.friends, (err, result) => {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+
+                        socketMap.forEach((element2, index2) => {
+                            if (JSON.stringify(element2.userId) === JSON.stringify(element.id)) {
+                                socket(element2.socketId, 'response', {
+                                    response: 'loadUserInfo',
+                                    result: { success: true, result: element }
+                                });
+                                socket(element2.socketId, 'response', {
+                                    response: 'loadFriendsInfo',
+                                    result: { success: true, result }
+                                });
+                            }
+                        })
+                    })
+                })
+                
+                done();
+            })
+        }
+    )
+
+    queue.registHandle(
         [ { topic: TOPIC.USER_ACTION, stream: STREAM, type: TYPE.REMOVE_FRIEND } ],
         (message, done) => {
             mongodb.removeFriend(message.data.payload, (err, result) => {
@@ -290,15 +331,55 @@ const registerQueue = (socket) => {
     queue.registHandle(
         [ { topic: TOPIC.GROUP_ACTION, stream: STREAM, type: TYPE.CREATE_GROUP } ],
         (message, done) => {
-            message.data.payload.joinCode = message.data.payload.groupName + '';
-            console.log(message.data.payload);
-            mongodb.createGroup(message.data.payload, (err, result) => {
+            joiningCodeGen.genCode((err, code) => {
                 if (err) {
                     console.log(err);
                     return done();
                 }
 
-                mongodb.getGroupByUser(message.data.payload, (err, result2) => {
+                message.data.payload.joinCode = code;
+                console.log(message.data.payload);
+                mongodb.createGroup(message.data.payload, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        return done();
+                    }
+
+                    mongodb.getGroupByUser(message.data.payload, (err, result2) => {
+                        if (err) {
+                            console.log(err);
+                            return done();
+                        }
+
+                        socketMap.forEach((element, index) => {
+                            if (JSON.stringify(element.userId) === JSON.stringify(message.data.payload.id)) {
+                                socket(element.socketId, 'response', {
+                                    response: 'loadGroupsInfo',
+                                    result: {
+                                        success: true,
+                                        result: result2
+                                    }
+                                })
+                            }
+                        });
+                        done();
+                    })
+                });
+            });
+            
+        }
+    );
+
+    queue.registHandle(
+        [ { topic: TOPIC.GROUP_ACTION, stream: STREAM, type: TYPE.DISBAND_GROUP } ],
+        (message, done) => {
+            mongodb.disbandGroup(message.data.payload, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return done();
+                }
+                
+                mongodb.getGroupByUser(message.data.payload, (err, result) => {
                     if (err) {
                         console.log(err);
                         return done();
@@ -310,17 +391,16 @@ const registerQueue = (socket) => {
                                 response: 'loadGroupsInfo',
                                 result: {
                                     success: true,
-                                    result: result2
+                                    result: result
                                 }
                             })
                         }
                     });
                     done();
                 })
-                
-            });
+            })
         }
-    );
+    )
 
     queue.registHandle(
         [ { topic: TOPIC.GROUP_ACTION, stream: STREAM, type: TYPE.JOIN_GROUP } ],
@@ -366,6 +446,47 @@ const registerQueue = (socket) => {
                         })
                     })
                 }
+                done();
+            })
+        }
+    );
+
+    queue.registHandle(
+        [ { topic: TOPIC.GROUP_ACTION, stream: STREAM, type: TYPE.RE_JOINING_CODE } ],
+        (message, done) => {
+            joiningCodeGen.reGenCode(message.data.payload.oldCode, (err, code) => {
+                if (err) {
+                    console.log(err);
+                    return done();
+                }
+
+                message.data.payload.joinCode = code;
+                mongodb.changeJoiningCode(message.data.payload, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        return done();
+                    }
+
+                    mongodb.getGroupByUser(message.data.payload, (err, result) => {
+                        if (err) {
+                            console.log(err);
+                            return done();
+                        }
+
+                        socketMap.forEach((element, index) => {
+                            if (JSON.stringify(element.userId) === JSON.stringify(message.data.payload.id)) {
+                                socket(element.socketId, 'response', {
+                                    response: 'loadGroupsInfo',
+                                    result: {
+                                        success: true,
+                                        result: result
+                                    }
+                                })
+                            }
+                        });
+                        done();
+                    })
+                })
             })
         }
     )
@@ -451,8 +572,6 @@ const registerQueue = (socket) => {
     queue.registHandle(
         [ { topic: TOPIC.message, stream: STREAM, type: TYPE.GET_MESSAGE } ],
         (message, done) => {
-            console.log('get mess');
-            console.log(message.data.payload);
             mongodb.getMessages(message.data.payload, (err, result) => {
                 if (err) {
                     console.log(err);
@@ -460,7 +579,7 @@ const registerQueue = (socket) => {
                 }
 
                 let listId = [];
-                console.log(result);
+                // console.log(result);
 
                 if (result.length > 0) {
                     listId = result.map((item, index) => {
