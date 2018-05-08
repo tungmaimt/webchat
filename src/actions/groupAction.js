@@ -59,6 +59,19 @@ class GroupAction {
         })
     }
 
+    joinRoom(payload, callback) {
+        fetchSomething('api/group/room?roomId=' + payload.roomId, {
+            method: 'PUT',
+            headers: new Headers({
+                'x-access-token': localStorage.getToken(),
+                '_id': localStorage.get_Id()
+            })
+        }, (response) => {
+            if (response.err) return callback(response.err);
+            return callback(null, response);
+        })
+    }
+
     reCode(payload, callback) {
         fetchSomething('/api/group/' + payload.groupId + '?oldCode=' + payload.oldCode, {
             method: 'PUT',

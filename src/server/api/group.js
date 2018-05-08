@@ -40,6 +40,25 @@ router.post('/room', (req, res) => {
         }
         res.json({ res: 'ok' });
     });
+});
+
+router.put('/room', (req, res) => {
+    let payload = {
+        id: req.headers['_id'],
+        roomId: req.query.roomId
+    }
+    queue.push({
+        topic: queue.TOPIC.GROUP_ACTION,
+        stream: queue.STREAM,
+        type: queue.TYPE.JOIN_ROOM,
+        data: { payload }
+    }, (err) => {
+        if (err) {
+            res.json({ err });
+            return console.log(err);
+        }
+        res.json({ res: 'ok' });
+    });
 })
 
 router.post('/', (req, res) => {

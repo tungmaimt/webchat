@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './style.css';
 import groupAction from '../../actions/groupAction';
 import Modal from '../Modal';
+import { registerHandleResponse, removeHandleResponse } from '../../something';
 
 class GroupActing extends Component {
 
@@ -23,6 +24,15 @@ class GroupActing extends Component {
         this.openModalJoinGroup = this.openModalJoinGroup.bind(this);
         this.createGroup = this.createGroup.bind(this);
         this.joinGroup = this.joinGroup.bind(this);
+        this.handleJoinGroupResponse = this.handleJoinGroupResponse.bind(this);
+    }
+
+    componentWillMount() {
+        registerHandleResponse('joinGroupResult', this.handleJoinGroupResponse);
+    }
+
+    componentWillUnmount() {
+        removeHandleResponse('joinGroupResult', this.handleJoinGroupResponse);
     }
 
     updateInput(key, event) {
@@ -55,6 +65,12 @@ class GroupActing extends Component {
         })
     }
 
+    handleJoinGroupResponse(result) {
+        this.setState({
+            notify: result.result
+        })
+    }
+
     createGroup() {
         if (this.state.inputGroupName === '' || this.state.inputGroupDescription === '') {
             this.setState({
@@ -75,7 +91,7 @@ class GroupActing extends Component {
     }
 
     joinGroup() {
-        if (this.state.inputJoinCode.trim === '') {
+        if (this.state.inputJoinCode === '') {
             this.setState({
                 notify: 'join code is blank'
             });

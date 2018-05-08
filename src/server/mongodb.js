@@ -181,7 +181,6 @@ class SomeMongo {
         }
     
         connectDb((client, db) => {
-
             db.collection('rooms').find({ 
                 members: [ { id: members[0], track: -1 }, { id: members[1], track: -1 } ] 
             }).toArray((err, docs) => {
@@ -781,7 +780,7 @@ class SomeMongo {
     addRoom(payload, callback) {
         let room = {
             name: payload.roomName,
-            members: [ { id: payload.id, track: 0 } ],
+            members: [ { id: new ObjectID(payload.id), track: 0 } ],
             created_date: Date.now()
         }
         connectDb((client, db) => {
@@ -809,6 +808,34 @@ class SomeMongo {
                         }
                     )
                 })
+            })
+        })
+    }
+
+    joinRoom(payload, callback) {
+        connectDb((client, db) => {
+            db.collection('rooms').find({ _id: new ObjectID(payload.roomId) }).toArray((err, docs) => {
+                if (err) {
+                    console.log(err);
+                    client.close();
+                    return callback(err);
+                }
+
+                docs[0].members.push({ id: new ObjectID(payload.id), track: 0 });
+                db.collection('rooms').updateOne(
+                    { _id: docs[0]._id },
+                    { $set: { members: docs[0].members } },
+                    (err, result2) => {
+                        if (err) {
+                            console.log(err);
+                            client.close();
+                            return callback(err);
+                        }
+
+                        client.close();
+                        callback(null, docs[0]);
+                    }
+                )
             })
         })
     }

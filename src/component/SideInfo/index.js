@@ -6,6 +6,7 @@ import groupAction from '../../actions/groupAction';
 import groupStore from '../../stores/groupStore';
 import messageAction from '../../actions/messageAction';
 import { localStorage } from '../../something';
+import { registerHandleResponse, removeHandleResponse } from '../../something';
 import Modal from '../Modal';
 
 class SideInfo extends Component {
@@ -25,6 +26,7 @@ class SideInfo extends Component {
             showModal: false,
             inputAddingRoomName: '',
             notify: '',
+            selectRoom: '',
         }
 
         this.addFriend = this.addFriend.bind(this);
@@ -38,6 +40,7 @@ class SideInfo extends Component {
         this.disbandGroup = this.disbandGroup.bind(this);
         this.leaveGroup = this.leaveGroup.bind(this);
         this.updateInput = this.updateInput.bind(this);
+        this.handleJoinRoomResponse = this.handleJoinRoomResponse.bind(this);
     }
 
     componentWillMount() {
@@ -70,7 +73,9 @@ class SideInfo extends Component {
 
         groupStore.addLoadUsersInfoInGroupListener(() => {
             this.loadUsersInfoInGroup();
-        })
+        });
+
+        registerHandleResponse('joinRoomInfo', this.handleJoinRoomResponse);
     }
 
     componentWillUnmount() {
@@ -103,7 +108,9 @@ class SideInfo extends Component {
 
         groupStore.removeLoadUsersInfoInGroupListener(() => {
             this.loadUsersInfoInGroup();
-        })
+        });
+
+        removeHandleResponse('joinRoomInfo', this.handleJoinRoomResponse);
     }
 
     loadGroupInfo() {
@@ -174,6 +181,29 @@ class SideInfo extends Component {
         });
     }
 
+    handleJoinRoomResponse(result) {
+        if (!result.success) {
+            console.log(result);
+            return console.log('something wrong');
+        }
+        let rooms = this.state.rooms;
+        let count = 0;
+
+        rooms.forEach((element, index) => {
+            if (element._id + '' === result.result._id + '') {
+                element.members = result.result.members;
+                console.log(element);
+                this.setState({
+                    rooms: rooms
+                })
+            }
+            count++;
+            if (count === rooms.length) {
+                this.loadUsersInfoInGroup();
+            }
+        })
+    }
+
     addFriend() {
         userAction.addFriend(this.state.info.id, (err, result) => {
             if (err) return console.log(err);
@@ -220,9 +250,26 @@ class SideInfo extends Component {
                 console.log(response);
             }
         });
-        this.state.rooms.forEach((element, index) => {
-            if (index !== roomIndex) this.refs['room' + index].className = 'hide';
-            else this.refs['room' + roomIndex].className = 'roomInfo';
+        let check = false;
+        let count = 0;
+        room.members.forEach((element, index) => {
+            if (element.id + '' === localStorage.get_Id() + '') {
+                check = true;
+            }
+            count++;
+            
+            if (count === room.members.length) {
+                if (!check) {
+                    console.log('ohhhh');
+                    groupAction.joinRoom({ roomId: room._id }, (err, response) => {
+                        if (err) return console.log(err);
+                        return console.log(response);
+                    })
+                }
+            }
+        });
+        this.setState({
+            selectRoom: room._id
         })
         console.log(room);
     }
@@ -271,7 +318,6 @@ class SideInfo extends Component {
     }
 
     render() {
-        
         if (this.state.flag) {
             const roomMembers = (list) => {
                 return list.map((item, index) => {
@@ -283,11 +329,15 @@ class SideInfo extends Component {
                 })
             }
             const listRooms = this.state.rooms.map((item, index) => {
+                console.log(item);
                 const mem = roomMembers(item.members);
                 return (
                     <li key={index} onClick={() => {this.goRoom(item, index)}} className="room">
                         <div className="room-name"># {item.name}</div>
-                        <ul className="hide" ref={"room" + index}>
+                        <ul 
+                            className={item._id === this.state.selectRoom ? "roomInfo" : "hide"} 
+                            ref={"room" + index}
+                        >
                             {mem}
                         </ul>
                     </li>

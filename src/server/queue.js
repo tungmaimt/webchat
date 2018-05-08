@@ -41,6 +41,7 @@ const TYPE = {
     RE_JOINING_CODE: 'RE_JOINING_CODE',
     GET_ROOMS_INFO: 'GET_ROOMS_INFO',
     ADD_NEW_ROOM: 'ADD_NEW_ROOM',
+    JOIN_ROOM: 'JOIN_ROOM',
     UPDATE_USER_INFO: 'UPDATE_USER_INFO',
     OFFER: 'OFFER',
     ANSWER: 'ANSWER',
@@ -419,7 +420,8 @@ const registerQueue = (socket) => {
                                 result: { success: false, result: "invalid join code" }
                             })
                         }
-                    })
+                    });
+                    done();
                 } else if (result === -1) {
                     socketMap.forEach((element, index) => {
                         if (JSON.stringify(element.userId) === JSON.stringify(message.data.payload.id)) {
@@ -428,25 +430,38 @@ const registerQueue = (socket) => {
                                 result: { success: false, result: "you have joined this group" }
                             })
                         }
-                    })
+                    });
+                    done();
                 } else {
-                    socketMap.forEach((element, index) => {
-                        if (JSON.stringify(element.userId) === JSON.stringify(message.data.payload.id)) {
-                            socket(element.socketId, 'response', {
-                                response: 'joinGroupResult',
-                                result: { success: true, result: "joining success" }
-                            });
-                            return;
+                    mongodb.getGroupByUser(message.data.payload, (err, result2) => {
+                        if (err) {
+                            console.log(err);
+                            done();
                         }
-                        result.members.forEach((element2, index2) => {
-                            socket(element.socketId, 'response', {
-                                response: 'updateGroupMembers',
-                                result: { success: true, result:  result}
-                            });
+
+                        socketMap.forEach((element, index) => {
+                            if (JSON.stringify(element.userId) === JSON.stringify(message.data.payload.id)) {
+                                socket(element.socketId, 'response', {
+                                    response: 'joinGroupResult',
+                                    result: { success: true, result: "joining success" }
+                                });
+                                socket(element.socketId, 'response', {
+                                    response: 'loadGroupsInfo',
+                                    result: { success: true, result: result2 }
+                                })
+                                return;
+                            }
+                            result.members.forEach((element2, index2) => {
+                                socket(element.socketId, 'response', {
+                                    response: 'updateGroupMembers',
+                                    result: { success: true, result:  result}
+                                });
+                            })
                         })
+                        done();
                     })
+                    
                 }
-                done();
             })
         }
     );
@@ -563,6 +578,28 @@ const registerQueue = (socket) => {
                         done();
                     });
                 });
+            })
+        }
+    )
+
+    queue.registHandle(
+        [ { topic: TOPIC.GROUP_ACTION, stream: STREAM, type: TYPE.JOIN_ROOM } ],
+        (message, done) => {
+            mongodb.joinRoom(message.data.payload, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return done();
+                }
+
+                socketMap.forEach((element, index) => {
+                    if (JSON.stringify(element.userId) === JSON.stringify(message.data.payload.id)) {
+                        socket(element.socketId, 'response', {
+                            response: 'joinRoomInfo',
+                            result: { success: true, result: result }
+                        });
+                    }
+                })
+                done();
             })
         }
     )
