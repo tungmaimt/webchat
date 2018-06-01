@@ -26,13 +26,13 @@ How to run develop
   
   If using command prompt:
     
-    Start your mongodb.
+   Start your mongodb.
     
-    Run:
+   Run:
       > cd ../../
       > npm run client
     
-    Open another command prompt at the directory and run:
+   Open another command prompt at the directory and run:
       > cd src/server/
       > npm run dev
   
